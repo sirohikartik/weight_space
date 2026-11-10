@@ -3,7 +3,11 @@
 from typing import Optional
 import torch
 import torch.nn as nn
-from transformers import PreTrainedModel, PreTrainedTokenizer
+try:
+    from transformers import PreTrainedModel, PreTrainedTokenizer
+except ImportError:
+    PreTrainedModel = nn.Module  # type: ignore
+    PreTrainedTokenizer = object  # type: ignore
 
 
 class SteeringHook:
