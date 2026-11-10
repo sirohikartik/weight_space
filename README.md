@@ -10,38 +10,66 @@ An empirical mechanistic interpretability toolkit for discovering monosemantic f
 
 ## Key Findings
 
-1. **Top-$K$ Sparse Autoencoder Feature Isolation:**
-   Trained on Layer 12 residual stream activations of `Qwen/Qwen2.5-0.5B-Instruct` ($d_{\text{model}} = 896$, expansion $d_{\text{sae}} = 4096$, $K = 32$), achieving $99.23\%$ activation sparsity. Discovered pure monosemantic features including French language direction (Latent #3460).
+### 1. Top-$K$ Sparse Autoencoder Feature Isolation
+Trained on Layer 12 residual stream activations of `Qwen/Qwen2.5-0.5B-Instruct` ($d_{\text{model}} = 896$, expansion $d_{\text{sae}} = 4096$, $K = 32$), achieving $99.23\%$ activation sparsity. Discovered pure monosemantic features including French language direction (Latent #3460).
 
-2. **Destructive Interference in Physical Coordinate Projections:**
-   Decomposing feature directions into the model's standard physical coordinate basis reveals that steering **only** the top 5 positive coordinates (`#490, #507, #266, #579, #570`) causes the model to collapse into an orthogonal software developer persona (generating C++ and Python code).
-   Negative coordinates (`#100, #131, #43, #850, #194`) act as inhibitory destructive interference brakes. Balancing 10 positive with 10 negative coordinates fully cancels the software engineering interference and restores fluent French generation.
+### 2. Destructive Interference in Physical Coordinate Projections
+Decomposing feature directions into the model's standard physical coordinate basis reveals that steering **only** the top 5 positive coordinates (`#490, #507, #266, #579, #570`) causes the model to collapse into an orthogonal software developer persona (generating C++ and Python code).
 
-3. **Zero-Overhead Closed-Form Weight Compilation:**
-   Latent directions can be permanently folded into the MLP down-projection matrix ($W_{\text{down}}$) using a closed-form rank-1 outer product:
-   $$\Delta W = \alpha \, \mathbf{d} \, \mathbf{u}^T$$
-   This eliminates runtime forward hooks, introduces zero inference latency, and preserves general capabilities.
+Negative coordinates (`#100, #131, #43, #850, #194`) act as inhibitory destructive interference brakes. Balancing 10 positive with 10 negative coordinates fully cancels the software engineering interference and restores fluent French generation.
+
+### 3. Zero-Overhead Closed-Form Weight Compilation
+Latent directions can be permanently folded into the MLP down-projection matrix $W_{\text{down}}$ using a closed-form rank-1 outer product:
+
+```math
+\Delta W = \alpha \, \mathbf{d} \, \mathbf{u}^T
+```
+
+This eliminates runtime forward hooks, introduces zero inference latency, and preserves general capabilities.
 
 ---
 
 ## Mathematical Formulation
 
 ### 1. Top-$K$ Sparse Autoencoder
+
 Given residual representation $\mathbf{x} \in \mathbb{R}^{d}$, the encoder maps centered activations to an overcomplete latent space $\mathbb{R}^{M}$ ($M > d$):
-$$\mathbf{z} = \operatorname{TopK}\left(\operatorname{ReLU}(W_{\text{enc}}(\mathbf{x} - \mathbf{b}_{\text{dec}}) + \mathbf{b}_{\text{enc}}), K\right)$$
+
+```math
+\mathbf{z} = \operatorname{TopK}\left(\operatorname{ReLU}\left(W_{\text{enc}}(\mathbf{x} - \mathbf{b}_{\text{dec}}) + \mathbf{b}_{\text{enc}}\right), K\right)
+```
+
 The decoder reconstructs activations:
-$$\hat{\mathbf{x}} = W_{\text{dec}} \mathbf{z} + \mathbf{b}_{\text{dec}}$$
+
+```math
+\hat{\mathbf{x}} = W_{\text{dec}} \mathbf{z} + \mathbf{b}_{\text{dec}}
+```
+
 subject to unit column norm constraints $\|W_{\text{dec}}[:, i]\|_2 = 1$.
 
 ### 2. Physical Coordinate Decomposition
-For an isolated feature unit direction $\mathbf{d} = W_{\text{dec}}[:, c] \in \mathbb{R}^{d}$, we decompose its components along the standard basis:
-$$\mathbf{d} = \sum_{i=1}^{d} d_i \mathbf{e}_i = \sum_{i \in \mathcal{P}} d_i \mathbf{e}_i + \sum_{j \in \mathcal{N}} d_j \mathbf{e}_j$$
+
+For an isolated feature unit direction $\mathbf{d} = W_{\text{dec}}[:, c] \in \mathbb{R}^{d}$, we decompose its components along the standard physical basis:
+
+```math
+\mathbf{d} = \sum_{i=1}^{d} d_i \mathbf{e}_i = \sum_{i \in \mathcal{P}} d_i \mathbf{e}_i + \sum_{j \in \mathcal{N}} d_j \mathbf{e}_j
+```
+
 where $\mathcal{P} = \{i \mid d_i > 0\}$ and $\mathcal{N} = \{j \mid d_j < 0\}$. Steering without $\mathcal{N}$ breaks geometric alignment and triggers off-target projections.
 
 ### 3. Closed-Form Parameter Compilation
+
 For an MLP down-projection layer $\mathbf{y} = W_{\text{down}} \mathbf{h}_{\text{inter}}$, injecting an output offset proportional to $\mathbf{d}$ corresponds to:
-$$W_{\text{down}}^{\text{new}} = W_{\text{down}} + \alpha \, \mathbf{d} \, \mathbf{u}^T$$
-where $\mathbf{u} = \frac{\mathbf{1}}{\sqrt{d_{\text{inter}}}} \in \mathbb{R}^{d_{\text{inter}}}$.
+
+```math
+W_{\text{down}}^{\text{new}} = W_{\text{down}} + \alpha \, \mathbf{d} \, \mathbf{u}^T
+```
+
+where:
+
+```math
+\mathbf{u} = \frac{\mathbf{1}}{\sqrt{d_{\text{inter}}}} \in \mathbb{R}^{d_{\text{inter}}}
+```
 
 ---
 
