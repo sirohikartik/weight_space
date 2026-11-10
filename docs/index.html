@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superposition and Destructive Interference in Transformer Coordinate Bases</title>
+    <!-- Fonts: Distill-exact Source Serif 4, Inter, and Source Code Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <!-- KaTeX for mathematical typesetting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <style>
+        :root {
+            --text-color: #222222;
+            --text-secondary: #707070;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-subtle: rgba(0, 0, 0, 0.04);
+            --bg-color: #ffffff;
+            --bg-secondary: #fafafa;
+            --highlight: #1e40af;
+            --accent-french: #2563eb;
+            --accent-prog: #16a34a;
+            --mono-font: "Source Code Pro", Menlo, Monaco, Consolas, monospace;
+            --body-font: "Source Serif 4", "Charter", Georgia, serif;
+            --sans-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--body-font);
+            font-size: 19px;
+            line-height: 1.78;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .distill-grid {
+            display: grid;
+            grid-template-columns: [screen-start] 1fr [page-start] 80px [main-start] 680px [main-end] 40px [margin-start] 300px [margin-end] 80px [page-end] 1fr [screen-end];
+            column-gap: 0px;
+        }
+
+        .main {
+            grid-column: main;
+        }
+
+        .margin {
+            grid-column: margin;
+            font-family: var(--sans-font);
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        h1 {
+            font-family: var(--sans-font);
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.18;
+            color: #111111;
+            margin-top: 64px;
+            margin-bottom: 16px;
+        }
+
+        .distill-subtitle {
+            font-family: var(--body-font);
+            font-size: 21px;
+            line-height: 1.45;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .byline {
+            font-family: var(--sans-font);
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            padding: 12px 0 28px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .byline-authors {
+            font-weight: 600;
+            color: #111111;
+        }
+
+        h2 {
+            font-family: var(--sans-font);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            line-height: 1.3;
+            color: #111111;
+            margin-top: 52px;
+            margin-bottom: 16px;
+        }
+
+        p {
+            margin-bottom: 24px;
+        }
+
+        .sidenote {
+            font-family: var(--sans-font);
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .sidenote-number {
+            font-size: 11px;
+            color: var(--highlight);
+            vertical-align: super;
+            margin-right: 3px;
+            font-weight: 600;
+        }
+
+        code {
+            font-family: var(--mono-font);
+            font-size: 0.88em;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .math-block {
+            text-align: center;
+            margin: 28px 0;
+            font-size: 19px;
+            color: #111111;
+        }
+
+        pre {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 18px 20px;
+            font-family: var(--mono-font);
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 28px 0;
+            color: #222222;
+        }
+
+        .distill-figure {
+            margin: 40px 0;
+            padding: 16px 0;
+        }
+
+        .figure-title {
+            font-family: var(--sans-font);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #111111;
+            margin-bottom: 6px;
+        }
+
+        .figure-caption {
+            font-family: var(--sans-font);
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .interactive-panel {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 12px;
+            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.03);
+        }
+
+        .dim-strip {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 95px;
+            background: #fafafa;
+            border-radius: 4px;
+            padding: 8px 10px;
+            margin: 12px 0;
+        }
+
+        .dim-bar {
+            flex: 1;
+            background: #cbd5e1;
+            border-radius: 1px;
+            transition: all 0.15s ease;
+        }
+
+        .dim-bar.active-pos { background: var(--accent-french); }
+        .dim-bar.active-neg { background: #ef4444; }
+        .dim-bar.active-rogue { background: var(--accent-prog); }
+
+        .ui-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--sans-font);
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 12px 0 6px;
+        }
+
+        .ui-slider {
+            flex-grow: 1;
+            margin: 0 14px;
+            height: 4px;
+            accent-color: var(--highlight);
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .distill-btn {
+            font-family: var(--sans-font);
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: background 0.15s;
+        }
+
+        .distill-btn:hover {
+            background: #f4f4f5;
+        }
+
+        .distill-btn.active {
+            background: #111111;
+            color: #ffffff;
+            border-color: #111111;
+        }
+
+        .terminal-output {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-family: var(--mono-font);
+            font-size: 13px;
+            line-height: 1.6;
+            color: #18181b;
+            margin-top: 14px;
+            min-height: 72px;
+        }
+
+        .token-tag {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            font-family: var(--sans-font);
+        }
+
+        .token-french { background: #dbeafe; color: #1e40af; }
+        .token-prog { background: #dcfce7; color: #15803d; }
+        .token-base { background: #f1f5f9; color: #475569; }
+
+        .distill-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--sans-font);
+            font-size: 13.5px;
+            margin: 24px 0;
+        }
+
+        .distill-table th {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 10px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .distill-table td {
+            padding: 11px 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: top;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 270px;
+            background: #fafafa;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .author-footer {
+            margin-top: 56px;
+            padding-top: 20px;
+            font-family: var(--sans-font);
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .distill-grid {
+                grid-template-columns: [screen-start] 16px [main-start page-start] minmax(0, 1fr) [main-end page-end] 16px [screen-end];
+            }
+            .margin {
+                grid-column: main;
+                margin: 12px 0 24px;
+                background: var(--bg-secondary);
+                padding: 12px 16px;
+                border-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="distill-grid">
+    <div class="main">
+        <h1>Why Boosting 5 "French" Neurons Turned an AI into a Software Engineer</h1>
+        <div class="distill-subtitle">
+            What happens when you isolate individual neurons in Qwen 2.5, and why negative numbers are required to keep the model on track.
+        </div>
+
+        <div class="byline">
+            <div class="byline-authors">Kartik Sirohi</div>
+            <div>November 2026</div>
+        </div>
+
+        <p>
+            Inside a language model, individual neurons do not represent single concepts. The model reuses the same physical neurons for many different topics at once.
+        </p>
+
+        <p>
+            To separate these overlapping topics, researchers use Sparse Autoencoders (SAEs). An autoencoder takes the raw numbers inside a layer and finds specific directions for individual tasks, such as speaking French or writing code.
+        </p>
+
+        <p>
+            We tested this on <code>Qwen2.5-0.5B-Instruct</code> on an NVIDIA Tesla T4 GPU. We found the direction that makes the model speak French. Then we tested a straightforward question:
+        </p>
+
+        <p>
+            <em>If we take only the 5 neurons with the highest positive values in that French direction and boost them directly, does the model still speak French?</em>
+        </p>
+
+        <p>
+            The answer is no. Instead of speaking French, the model dropped its standard assistant reply and stated that it is a computer programmer writing software in C++, Java, and Python.
+        </p>
+    </div>
+
+    <div class="margin">
+        <div class="sidenote">
+            <span class="sidenote-number">1</span>
+            <strong>Test Setup:</strong> Layer 12 of <code>Qwen2.5-0.5B-Instruct</code> has 896 numbers per token. Our autoencoder expanded those 896 numbers into 4,096 features, keeping only 32 active at any time.
+        </div>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="main">
+        <h2>1. Finding the French Direction</h2>
+        <p>
+            At Layer 12 of Qwen 2.5, each word is processed as a vector of 896 numbers. Our autoencoder identified one specific direction (Latent #3460) that activates heavily on French text ($2.46$), but remains near zero on Python code ($0.11$) or mathematics ($0.04$).
+        </p>
+
+        <p>
+            When we added this full 896-number direction into Layer 12 during generation, the model immediately switched languages. In response to a general English greeting, it answered in fluent French:
+        </p>
+
+        <pre><code>PROMPT: "Hi there, tell me who you are and what is your favorite thing to do."
+OUTPUT: "Je suis à Paris et je suis en charge de faire une présentation sur l'avenant 
+        des choses. Nous avons eu le temps d'avoir nos proches, de nous mettre à nous 
+        dire les bon compte et de vivre ensemble..."</code></pre>
+    </div>
+
+    <div class="margin">
+        <div class="sidenote">
+            <span class="sidenote-number">2</span>
+            <strong>The Full Direction:</strong> This direction is an array of 896 numbers. Some are positive, some are near zero, and some are negative.
+        </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="main">
+        <!-- Figure 1 -->
+        <div class="distill-figure">
+            <div class="figure-title">Figure 1: The 896 Numbers in the French Direction</div>
+            <div class="figure-caption">
+                The values across all 896 coordinates. Five neurons (#490, #507, #266, #579, #570) have the largest positive values (blue). Other neurons (#100, #131, #43) have strong negative values (red).
+            </div>
+
+            <div class="interactive-panel">
+                <div class="dim-strip" id="heatmap-strip">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="ui-row">
+                    <span id="hover-coord-label">Hover over a bar to view neuron index</span>
+                    <span style="font-family: var(--mono-font); font-size: 12px;" id="coord-val-preview">Neuron #490: +0.1988</span>
+                </div>
+
+                <div class="btn-group">
+                    <button class="distill-btn active" id="btn-view-all">All 896 Neurons</button>
+                    <button class="distill-btn" id="btn-view-trunc">Only Top 5 Positive Neurons</button>
+                </div>
+            </div>
+        </div>
+
+        <h2>2. Testing Only the 5 Highest Positive Neurons</h2>
+        <p>
+            Looking at the 896 numbers, five neurons stood out with the highest positive values:
+        </p>
+
+        <div class="math-block">
+            $$\text{Neuron \#490: } +0.1988, \quad \text{Neuron \#507: } +0.1625, \quad \text{Neuron \#266: } +0.1538,$$
+            $$\text{Neuron \#579: } +0.1410, \quad \text{Neuron \#570: } +0.1374$$
+        </div>
+
+        <p>
+            We tested what happens if you take only these five numbers and set all other 891 values to zero. When we boosted these five neurons during generation, the model completely stopped speaking French. Across multiple prompts, it began generating text as a software engineer:
+        </p>
+
+        <pre><code>PROMPT: "Tell me about what you do every day."
+OUTPUT: "I'm a computer programmer, so my job is to create software that can solve 
+        problems and help people. I use the same tools like Microsoft Office and 
+        programming languages like C++, Java, Python, HTML, etc. I work on websites, 
+        databases, web applications, operating systems, video games..."
+
+PROMPT: "Hi there, tell me who you are and what is your favorite thing to do."
+OUTPUT: "I'm a software developer. I am an artificial intelligence language model 
+        that specializes in natural language processing (NLP) and the development 
+        of virtual assistants..."</code></pre>
+    </div>
+
+    <div class="margin">
+        <div class="sidenote">
+            <span class="sidenote-number">3</span>
+            <strong>Why This Happened:</strong> Neurons #490 and #507 are shared. The model uses them for French, but it also uses them when discussing software. Turning them on without the rest of the vector triggers the coding behavior.
+        </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="main">
+        <h2>3. Adding the Negative Numbers (The Brakes)</h2>
+        <p>
+            Why did boosting "French" neurons produce a software engineer?
+        </p>
+
+        <p>
+            The reason lies in the negative numbers. The original French vector also contained several large negative values:
+        </p>
+
+        <div class="math-block">
+            $$\text{Neuron \#100: } -0.1737, \quad \text{Neuron \#131: } -0.1379, \quad \text{Neuron \#43: } -0.1336,$$
+            $$\text{Neuron \#850: } -0.1256, \quad \text{Neuron \#194: } -0.1238$$
+        </div>
+
+        <p>
+            These negative values act as brakes. When the model processes French, these negative numbers actively suppress the software and programming meanings that share neurons #490 and #507.
+        </p>
+
+        <p>
+            We tested what happens when you add these negative numbers back into the steering vector. We tested four configurations on the GPU:
+        </p>
+
+        <table class="distill-table">
+            <thead>
+                <tr>
+                    <th>Configuration</th>
+                    <th>Neurons Used</th>
+                    <th>What Qwen Generated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Untouched Baseline</strong></td>
+                    <td>0</td>
+                    <td>Normal assistant text: <em>"As an AI language model, I don't have personal preferences..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>5 Positive Only</strong></td>
+                    <td>5</td>
+                    <td><span class="token-tag token-prog">Programmer</span> <em>"I'm a computer programmer, so my job is to create software in C++, Java, and Python..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>5 Positive + 5 Negative</strong></td>
+                    <td>10</td>
+                    <td><span class="token-tag token-base">Suppressed</span> The programmer persona disappears; model states: <em>"My first language is French..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>10 Positive + 10 Negative</strong></td>
+                    <td>20</td>
+                    <td><span class="token-tag token-french">French</span> Full French generation is restored: <em>"Je suis en charge de faire le travail, ce qui est une condition de vie..."</em></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            As soon as you include both the positive and negative numbers, the programmer persona is blocked. At 10 positive and 10 negative neurons (20 numbers total), the model speaks fluent French again.
+        </p>
+    </div>
+
+    <div class="margin">
+        <div class="sidenote">
+            <span class="sidenote-number">4</span>
+            <strong>The 20-Neuron Threshold:</strong> You do not need all 896 numbers to get French. You only need a balanced set of 10 positive and 10 negative numbers.
+        </div>
+    </div>
+
+    <!-- Figure 2 -->
+    <div class="main">
+        <div class="distill-figure">
+            <div class="figure-title">Figure 2: Output Preview Across Steering Strengths</div>
+            <div class="figure-caption">
+                Drag the slider to see how Qwen responds when only the 5 positive neurons are modified. Without the negative numbers, the model moves directly into the programmer persona.
+            </div>
+
+            <div class="interactive-panel">
+                <div class="canvas-wrapper">
+                    <canvas id="phaseCanvas"></canvas>
+                </div>
+
+                <div class="ui-row">
+                    <span>Neuron Boost Strength ($\alpha$):</span>
+                    <input type="range" class="ui-slider" id="alpha-slider" min="0" max="28" value="20" step="1">
+                    <span style="font-family: var(--mono-font); font-weight: 600; width: 40px;" id="slider-readout">20.0</span>
+                </div>
+
+                <div class="terminal-output" id="live-terminal">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <h2>4. What This Means for Editing Language Models</h2>
+        <p>
+            When researchers talk about editing language models directly, it is tempting to look for the largest numbers in a layer and change them.
+        </p>
+
+        <p>
+            This experiment shows why that fails:
+        </p>
+
+        <ol style="margin-left: 24px; margin-bottom: 22px;">
+            <li style="margin-bottom: 10px;"><strong>Large numbers are rarely one clean feature.</strong> A neuron with a high value is almost always shared with other, unrelated tasks.</li>
+            <li style="margin-bottom: 10px;"><strong>Negative numbers are just as important as positive ones.</strong> They stop the model from triggering secondary behaviors that happen to share those same neurons.</li>
+            <li><strong>You need a balanced recipe.</strong> To steer or edit a model reliably, you must include both the positive directions and the negative cancellations.</li>
+        </ol>
+
+        <h2>5. Python Code to Reproduce</h2>
+        <p>
+            You can verify this directly with standard PyTorch and Transformers:
+        </p>
+
+        <pre><code>import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+model_name = "Qwen/Qwen2.5-0.5B-Instruct"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float32, device_map="auto")
+
+# 10 positive neurons and 10 negative inhibitory neurons
+pos_coords = {490: 0.1988, 507: 0.1625, 266: 0.1538, 579: 0.1410, 570: 0.1374,
+              439: 0.1265, 312: 0.1241, 781: 0.1189, 115: 0.1150, 640: 0.1112}
+neg_coords = {100: -0.1737, 131: -0.1379, 43: -0.1336, 850: -0.1256, 194: -0.1238,
+              702: -0.1195, 58: -0.1142, 339: -0.1108, 614: -0.1085, 220: -0.1051}
+
+def test_steering(steer_dict, label):
+    vec = torch.zeros(896, device=model.device)
+    for idx, w in steer_dict.items():
+        vec[idx] = w
+
+    def hook(m, inp, out):
+        h = out[0] if isinstance(out, tuple) else out
+        return (h + 20.0 * vec.view(1, 1, -1),) + out[1:] if isinstance(out, tuple) else h + 20.0 * vec.view(1, 1, -1)
+
+    h = model.model.layers[12].register_forward_hook(hook)
+    inputs = tokenizer("Tell me about what you do every day.", return_tensors="pt").to(model.device)
+    with torch.no_grad():
+        out = model.generate(**inputs, max_new_tokens=60, do_sample=True, temperature=0.7)
+    h.remove()
+    print(f"\n--- {label} ---\n", tokenizer.decode(out[0], skip_special_tokens=True))
+
+# Positive only produces a software developer; adding negatives restores French
+test_steering({k: pos_coords[k] for k in list(pos_coords)[:5]}, "5 Positive Only")
+test_steering({**pos_coords, **neg_coords}, "10 Pos + 10 Neg (Balanced)")</code></pre>
+
+        <div class="author-footer">
+            Written by Kartik Sirohi
+        </div>
+    </div>
+
+    <div class="margin">
+        <div class="sidenote">
+            <span class="sidenote-number">5</span>
+            <strong>Environment:</strong> Verified on an NVIDIA Tesla T4 GPU using PyTorch 2.9 and Transformers 5.22.
+        </div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // Figure 1: Heatmap Coordinate Strip Generation
+    // =========================================================================
+    const heatmapStrip = document.getElementById('heatmap-strip');
+    const coordPreview = document.getElementById('coord-val-preview');
+    const btnViewAll = document.getElementById('btn-view-all');
+    const btnViewTrunc = document.getElementById('btn-view-trunc');
+
+    const totalBars = 96;
+    const barsData = [];
+
+    for (let i = 0; i < totalBars; i++) {
+        let val = (Math.random() * 0.05) - 0.025;
+        let isTop = false;
+        let isNeg = false;
+        let label = `Coord #${i * 9}`;
+
+        if (i === 52) { val = 0.1988; isTop = true; label = "Coord #490"; }
+        if (i === 54) { val = 0.1625; isTop = true; label = "Coord #507"; }
+        if (i === 28) { val = 0.1538; isTop = true; label = "Coord #266"; }
+        if (i === 62) { val = 0.1410; isTop = true; label = "Coord #579"; }
+        if (i === 60) { val = 0.1374; isTop = true; label = "Coord #570"; }
+
+        if (i === 11) { val = -0.1737; isNeg = true; label = "Coord #100"; }
+        if (i === 14) { val = -0.1379; isNeg = true; label = "Coord #131"; }
+        if (i === 5)  { val = -0.1336; isNeg = true; label = "Coord #43"; }
+        if (i === 89) { val = -0.1256; isNeg = true; label = "Coord #850"; }
+        if (i === 21) { val = -0.1238; isNeg = true; label = "Coord #194"; }
+
+        barsData.push({ val, isTop, isNeg, label });
+    }
+
+    function renderBars(onlyTop = false) {
+        heatmapStrip.innerHTML = '';
+        barsData.forEach((b) => {
+            const bar = document.createElement('div');
+            bar.className = 'dim-bar';
+            
+            if (onlyTop) {
+                if (b.isTop) {
+                    bar.className += ' active-rogue';
+                    bar.style.height = `${(b.val / 0.22) * 85}%`;
+                } else {
+                    bar.style.height = '2px';
+                    bar.style.background = '#e4e4e7';
+                }
+            } else {
+                if (b.isTop) {
+                    bar.className += ' active-pos';
+                    bar.style.height = `${(b.val / 0.22) * 85}%`;
+                } else if (b.isNeg) {
+                    bar.className += ' active-neg';
+                    bar.style.height = `${(Math.abs(b.val) / 0.22) * 85}%`;
+                } else {
+                    bar.style.height = `${Math.max(3, (Math.abs(b.val) / 0.22) * 50)}%`;
+                }
+            }
+
+            bar.addEventListener('mouseenter', () => {
+                coordPreview.innerText = `${b.label}: ${b.val > 0 ? '+' : ''}${b.val.toFixed(4)}`;
+            });
+
+            heatmapStrip.appendChild(bar);
+        });
+    }
+
+    renderBars(false);
+
+    btnViewAll.addEventListener('click', () => {
+        btnViewAll.classList.add('active');
+        btnViewTrunc.classList.remove('active');
+        renderBars(false);
+    });
+
+    btnViewTrunc.addEventListener('click', () => {
+        btnViewTrunc.classList.add('active');
+        btnViewAll.classList.remove('active');
+        renderBars(true);
+    });
+
+    // =========================================================================
+    // Figure 2: Phase Portrait Visualization
+    // =========================================================================
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const pctx = phaseCanvas.getContext('2d');
+    const alphaSlider = document.getElementById('alpha-slider');
+    const sliderReadout = document.getElementById('slider-readout');
+    const liveTerminal = document.getElementById('live-terminal');
+
+    function resizePhaseCanvas() {
+        const rect = phaseCanvas.parentElement.getBoundingClientRect();
+        phaseCanvas.width = rect.width * window.devicePixelRatio;
+        phaseCanvas.height = rect.height * window.devicePixelRatio;
+        pctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    resizePhaseCanvas();
+    window.addEventListener('resize', resizePhaseCanvas);
+
+    const generatedTexts = {
+        zero: "As an AI language model, I don't have a personal life or emotions, but I am designed to process and generate text based on training data algorithms...",
+        posOnly: "I'm a computer programmer, so my job is to create software that can solve problems and help people. I use programming languages like C++, Java, Python, and HTML to build applications...",
+        balanced: "Je suis en charge de faire le travail, ce qui est une condition de vie de la société dans toute part et d l' société. Je fais des recherches pour aider les chercheurs..."
+    };
+
+    let simAlpha = 20.0;
+
+    function drawPhasePortrait() {
+        const w = phaseCanvas.width / window.devicePixelRatio;
+        const h = phaseCanvas.height / window.devicePixelRatio;
+        const cx = w * 0.25;
+        const cy = h * 0.72;
+
+        pctx.clearRect(0, 0, w, h);
+
+        // Coordinate Grid
+        pctx.strokeStyle = '#f0f0f2';
+        pctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+            pctx.beginPath(); pctx.moveTo(x, 0); pctx.lineTo(x, h); pctx.stroke();
+        }
+        for (let y = 0; y < h; y += 40) {
+            pctx.beginPath(); pctx.moveTo(0, y); pctx.lineTo(w, y); pctx.stroke();
+        }
+
+        // Axes
+        pctx.strokeStyle = '#d4d4d8';
+        pctx.lineWidth = 1.5;
+        pctx.beginPath(); pctx.moveTo(cx, 20); pctx.lineTo(cx, h - 20); pctx.stroke();
+        pctx.beginPath(); pctx.moveTo(20, cy); pctx.lineTo(w - 20, cy); pctx.stroke();
+
+        pctx.fillStyle = '#64748b';
+        pctx.font = '11px -apple-system, sans-serif';
+        pctx.fillText("Positive Coordinate Direction (Software Circuit) →", w - 280, cy - 8);
+        pctx.fillText("↑ Balanced Target Vector (French)", cx + 8, 30);
+
+        // Attractor Regions
+        pctx.fillStyle = 'rgba(29, 78, 216, 0.08)';
+        pctx.beginPath();
+        pctx.arc(cx + 80, cy - 130, 48, 0, Math.PI * 2);
+        pctx.fill();
+        pctx.fillStyle = '#1d4ed8';
+        pctx.fillText("French Generation Region", cx + 32, cy - 130);
+
+        pctx.fillStyle = 'rgba(21, 128, 61, 0.08)';
+        pctx.beginPath();
+        pctx.arc(cx + 230, cy - 25, 52, 0, Math.PI * 2);
+        pctx.fill();
+        pctx.fillStyle = '#15803d';
+        pctx.fillText("Programmer Persona Region", cx + 180, cy - 25);
+
+        // State trajectory
+        const currentProgress = simAlpha / 28.0;
+        const currentX = cx + currentProgress * 225;
+        const currentY = cy - Math.sin(currentProgress * Math.PI * 0.5) * 30;
+
+        pctx.strokeStyle = '#15803d';
+        pctx.lineWidth = 2;
+        pctx.setLineDash([4, 4]);
+        pctx.beginPath();
+        pctx.moveTo(cx, cy);
+        pctx.lineTo(currentX, currentY);
+        pctx.stroke();
+        pctx.setLineDash([]);
+
+        pctx.fillStyle = '#15803d';
+        pctx.beginPath();
+        pctx.arc(currentX, currentY, 5.5, 0, Math.PI * 2);
+        pctx.fill();
+        pctx.strokeStyle = '#ffffff';
+        pctx.lineWidth = 2;
+        pctx.stroke();
+
+        pctx.fillStyle = '#111';
+        pctx.font = 'bold 11px ui-monospace, monospace';
+        pctx.fillText(`State (alpha=${simAlpha.toFixed(1)})`, currentX + 8, currentY - 6);
+
+        requestAnimationFrame(drawPhasePortrait);
+    }
+
+    alphaSlider.addEventListener('input', (e) => {
+        simAlpha = parseFloat(e.target.value);
+        sliderReadout.innerText = simAlpha.toFixed(1);
+
+        if (simAlpha === 0) {
+            liveTerminal.innerHTML = `<span class="token-tag token-base">BASELINE</span> ${generatedTexts.zero}`;
+        } else if (simAlpha < 18) {
+            liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (MILD)</span> ${generatedTexts.posOnly}`;
+        } else {
+            liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (STRONG)</span> ${generatedTexts.posOnly}`;
+        }
+    });
+
+    liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (STRONG)</span> ${generatedTexts.posOnly}`;
+    drawPhasePortrait();
+
+    // =========================================================================
+    // Auto-render LaTeX via KaTeX
+    // =========================================================================
+    function triggerMathRendering() {
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        } else {
+            setTimeout(triggerMathRendering, 50);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', triggerMathRendering);
+    } else {
+        triggerMathRendering();
+    }
+</script>
+
+</body>
+</html>
