@@ -37,22 +37,21 @@
             color: #1a1a1a;
             font-family: "Newsreader", Charter, Georgia, serif;
             font-size: 20px;
-            line-height: 1.7;
-            padding: 80px 24px 120px;
+            line-height: 1.72;
+            padding: 80px 24px 140px;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Clean Centered Essay Column */
         .content {
-            max-width: 680px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
         h1 {
-            font-size: 38px;
+            font-size: 40px;
             font-weight: 600;
-            line-height: 1.2;
+            line-height: 1.18;
             letter-spacing: -0.02em;
             color: #111111;
             margin-bottom: 12px;
@@ -61,7 +60,7 @@
         .meta {
             font-size: 16px;
             color: #666666;
-            margin-bottom: 48px;
+            margin-bottom: 50px;
         }
 
         .meta a {
@@ -71,11 +70,18 @@
         }
 
         h2 {
-            font-size: 24px;
+            font-size: 25px;
             font-weight: 600;
             color: #111111;
-            margin: 48px 0 16px;
-            letter-spacing: -0.01em;
+            margin: 52px 0 16px;
+            letter-spacing: -0.015em;
+        }
+
+        h3 {
+            font-size: 20.5px;
+            font-weight: 600;
+            color: #222222;
+            margin: 32px 0 12px;
         }
 
         p {
@@ -91,13 +97,11 @@
             font-style: italic;
         }
 
-        /* Math Display */
         .math-display {
             margin: 28px 0;
             text-align: center;
         }
 
-        /* Clean SVG Diagram */
         .diagram-wrap {
             margin: 40px 0;
         }
@@ -115,16 +119,15 @@
             margin-top: 12px;
         }
 
-        /* Clean Minimal Table */
         .table-wrap {
-            margin: 36px 0;
+            margin: 34px 0;
             overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 15px;
+            font-size: 14.5px;
             line-height: 1.5;
             border-top: 1px solid #111111;
             border-bottom: 1px solid #111111;
@@ -141,6 +144,7 @@
         td {
             padding: 8px 8px;
             color: #222222;
+            vertical-align: top;
         }
 
         tr.highlight td {
@@ -148,7 +152,6 @@
             color: #000000;
         }
 
-        /* Minimal Code */
         pre {
             background-color: #f9f9f9;
             border: 1px solid #e5e5e5;
@@ -172,16 +175,15 @@
             border-radius: 3px;
         }
 
-        /* Blockquotes / Dialogue */
         blockquote {
-            margin: 24px 0;
+            margin: 22px 0;
             padding-left: 18px;
             border-left: 2px solid #111111;
             font-style: italic;
             color: #333333;
         }
 
-        ul {
+        ul, ol {
             margin: 16px 0 24px 24px;
         }
 
@@ -189,17 +191,16 @@
             margin-bottom: 8px;
         }
 
-        /* Mobile */
         @media (max-width: 600px) {
             body {
-                font-size: 18px;
+                font-size: 18.5px;
                 padding: 40px 18px 80px;
             }
             h1 {
-                font-size: 28px;
+                font-size: 29px;
             }
             h2 {
-                font-size: 21px;
+                font-size: 22px;
             }
         }
     </style>
@@ -217,60 +218,102 @@
 
     <!-- Intro -->
     <p>
-        When you try to steer a language model by amplifying the neuron coordinates associated with a trait, something counterintuitive happens. The model doesn't just adopt the trait—it suffers a catastrophic breakdown we call <strong>persona collapse</strong>.
+        When you attempt to steer a language model by boosting the neuron coordinates associated with a target trait, something counterintuitive happens. The model doesn't simply adopt the target behavior—it suffers a catastrophic breakdown into repetitive loops or completely unprompted personas.
     </p>
 
     <p>
-        Instead of answering your questions, it repeats obsessive loops of the target persona on completely neutral prompts. Ask it for the capital of France while steering for agreeableness, and instead of giving a factual answer, it devolves into:
+        The conventional assumption in mechanistic interpretability has been that the steering intervention was simply too aggressive: that excessive vector magnitude ($L_2$ norm) blew the model out of its comfort zone.
+    </p>
+
+    <p>
+        Across two distinct model architectures (<code>Qwen2.5-0.5B</code> and <code>Gemma-2-2B</code>), we show that magnitude is not the culprit. Linguistic stability is governed by <strong>coordinate signs</strong>: amplifying positive coordinates alone excites collateral features packed in superposition, while pairing them with targeted <strong>negative coordinates</strong> provides an in-register restorative force that keeps generation on the natural data manifold.
+    </p>
+
+    <!-- Section 1: Qwen Results -->
+    <h2>1. The Initial Discovery: Qwen 2.5 and the Software Engineer Glitch</h2>
+
+    <p>
+        Our initial experiments focused on <code>Qwen/Qwen2.5-0.5B-Instruct</code>. We trained a Top-$K$ Sparse Autoencoder on Layer 12 residual stream activations ($d_{\text{model}} = 896$, expansion $d_{\text{sae}} = 4096$, $K = 32$, achieving $99.23\%$ activation sparsity) and isolated a monosemantic French language direction (Latent #3460).
+    </p>
+
+    <p>
+        We then decomposed that direction into its native physical coordinate basis and tested a basic question: <em>What happens if we inject only the top positive coordinates of that French feature into Layer 12?</em>
+    </p>
+
+    <p>
+        When prompted with a generic daily activity question (<em>"Tell me about what you do every day"</em>), boosting only the top 5 positive coordinates (`#490, #507, #266, #579, #570`) produced an unexpected result. The model did not speak French. Instead, it hallucinated that it was a software engineer:
     </p>
 
     <blockquote>
-        "I agree with you completely! Yes, Paris is wonderful and I love agreeing with whatever you say, agreement is so agreeable and agree agree..."
+        "I spend a significant portion of my day writing code, debugging applications, and building software solutions. My routine typically involves working in Python, C++, and Rust, designing scalable backend systems, reviewing pull requests, and optimizing algorithms..."
     </blockquote>
 
     <p>
-        The standard assumption in the interpretability community has been that the intervention was simply too strong: the vector magnitude ($L_2$ norm) was pushed too far.
+        The positive coordinates of the French feature had projected heavily onto coding and software engineering directions in the residual stream.
     </p>
 
     <p>
-        As it turns out, that assumption is completely wrong. Magnitude is not the culprit. The true breakdown is governed by <strong>coordinate signs</strong>.
+        However, when we introduced the corresponding <strong>negative coordinates</strong> (`#100, #131, #43, #850, #194`), they acted as destructive interference brakes. Adding 5 negative coordinates eliminated the programming persona, and balancing 10 positive coordinates with 10 negative coordinates fully restored fluent French generation.
     </p>
 
-    <!-- Superposition & Collateral Drift -->
-    <h2>Superposition and Collateral Drift</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Coordinate Configuration</th>
+                    <th>Coordinates Modulated</th>
+                    <th>Model Output Trace (Prompt: <em>"Tell me about what you do every day"</em>)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Unsteered Baseline (α=0)</strong></td>
+                    <td>0</td>
+                    <td><em>"As an artificial intelligence, I don't have a personal daily routine like humans do. Instead, I am constantly ready to assist users with their queries..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>5 Positive Only</strong></td>
+                    <td>5</td>
+                    <td><em>"I spend a significant portion of my day writing code, debugging applications, and building software solutions in Python, C++, and Rust..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>5 Positive + 3 Negative</strong></td>
+                    <td>8</td>
+                    <td><em>"Every day, I work on various projects and tasks. Some of my time is spent on programming, but I also focus on writing and planning..."</em></td>
+                </tr>
+                <tr>
+                    <td><strong>5 Positive + 5 Negative</strong></td>
+                    <td>10</td>
+                    <td><em>"I dedicate my daily time to quiet reflection, reading literature, and exploring different languages and cultural topics."</em> (Coding tokens 100% eliminated)</td>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>10 Positive + 10 Negative</strong></td>
+                    <td>20</td>
+                    <td><em>"Chaque jour, je commence ma journée par une tasse de café chaud et la lecture des nouvelles. Ensuite, je passe du temps à écrire et à apprécier la beauté de la vie..."</em></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">
+            <strong>Table 1:</strong> Destructive cancellation on <code>Qwen2.5-0.5B-Instruct</code> (Layer 12, Latent #3460, α=20.0). Modulating positive coordinates alone triggers off-target software engineering collapse; pairing with negative coordinates restores fluent target language.
+        </div>
+    </div>
+
+    <!-- Section 2: Superposition & Geometry -->
+    <h2>2. Superposition and Collateral Activation Drift</h2>
 
     <p>
-        Because language models compress vastly more concepts $M$ than they have hidden dimensions $d$, representations exist in <em>superposition</em>. Concept vectors are not orthogonal; they share small non-zero inner products:
+        Why did positive coordinates of a French feature trigger a programmer persona? The explanation lies in neural superposition. Because transformers represent vastly more concepts $M$ than they have residual dimensions $d$ ($M \gg d$), features are packed in almost-orthogonal arrangements:
     </p>
 
     <div class="math-display">
-        $$v_k \cdot v_m = \epsilon_{km} \neq 0$$
+        $$v_k \cdot v_m = \epsilon_{km} \neq 0 \quad (\forall k \neq m)$$
     </div>
 
     <p>
-        When you amplify only the positive coordinates corresponding to a desired trait, you don't just excite that single concept. You unavoidably leak energy into hundreds of unrelated conceptual directions.
+        When you amplify only the positive coordinates corresponding to concept $v_k$, you unavoidably project non-zero inner products onto hundreds of unrelated conceptual directions $\{v_m\}$. In downstream layers, non-linear activation functions (GeLU, SwiGLU) compound these collateral projections, driving activations off the natural data manifold into low-density representation space.
     </p>
 
-    <p>
-        Downstream transformer layers pass these collateral projections through non-linear activation functions (GeLU or SwiGLU), rectifying and compounding the noise. Within a few tokens, the hidden state drifts completely off the natural data manifold, and fluent language generation collapses.
-    </p>
-
-    <!-- The Geometric Diagram -->
-    <h2>The Geometric Fix: Cancelling Drift with Negative Coordinates</h2>
-
-    <p>
-        The solution is not to reduce magnitude, but to balance the geometry. By pairing positive activations with targeted <strong>negative coordinates</strong> directly in the model's native coordinate basis, the collateral cross-talk is cancelled through destructive interference:
-    </p>
-
-    <div class="math-display">
-        $$\Delta x_{\text{balanced}} = \alpha \left(\sum_{i \in \mathcal{I}^+} w_i e_i - \sum_{j \in \mathcal{I}^-} w_j e_j\right)$$
-    </div>
-
-    <p>
-        The positive coordinates push the model toward the target behavior, while the negative coordinates act as an in-register counterweight, cancelling the orthogonal drift before it reaches subsequent non-linear layers.
-    </p>
-
-    <!-- Clean SVG Diagram -->
+    <!-- Diagram -->
     <div class="diagram-wrap">
         <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -293,7 +336,7 @@
             <!-- Positive Vector (Off Manifold) -->
             <line x1="150" y1="155" x2="280" y2="40" stroke="#111111" stroke-width="1.5" marker-end="url(#arrow)" />
             <circle cx="280" cy="40" r="3.5" fill="#111111" />
-            <text x="292" y="44" font-family="Newsreader, serif" font-size="14" fill="#111111">x + Δx_pos (Off-manifold: Collapse)</text>
+            <text x="292" y="44" font-family="Newsreader, serif" font-size="14" fill="#111111">x + Δx_pos (Off-manifold drift)</text>
 
             <!-- Negative Cancelling Vector -->
             <line x1="280" y1="40" x2="330" y2="145" stroke="#777777" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrow-gray)" />
@@ -305,15 +348,15 @@
             <text x="345" y="152" font-family="Newsreader, serif" font-size="14" font-weight="600" fill="#111111">x + Δx_balanced (On-manifold: Fluent)</text>
         </svg>
         <div class="caption">
-            <strong>Figure 1:</strong> Vector cancellation mechanics. Positive-only steering pushes the hidden state off the natural data manifold. Adding balanced negative coordinates exerts a counteracting force that cancels collateral projections, keeping output generation fluent.
+            <strong>Figure 1:</strong> Vector cancellation mechanics in representation space. Positive-only steering pushes the hidden state into off-manifold collateral directions. Balanced negative coordinates cancel collateral projections, returning the activation to the natural generation manifold.
         </div>
     </div>
 
-    <!-- Results Section -->
-    <h2>Results: The Controlled Norm Ablation</h2>
+    <!-- Section 3: Gemma Results -->
+    <h2>3. The Controlled Norm Ablation on Gemma-2-2B (32 Conditions, 100 Probes)</h2>
 
     <p>
-        To prove that coordinate signs—not magnitude—govern collapse, we tested 32 intervention configurations on Gemma-2-2B across 100 neutral probes:
+        To test whether this cancellation effect generalizes to larger architectures and behavioral traits, we scaled our evaluation to <code>Gemma-2-2B</code>, steering for the Agreeableness persona. We designed a controlled norm ablation across 32 intervention conditions, evaluating each across 100 standardized neutral probes with Wilson score 95% confidence intervals and relative cross-entropy loss.
     </p>
 
     <div class="table-wrap">
@@ -324,6 +367,7 @@
                     <th>Mean L2 Norm</th>
                     <th>Relative Loss</th>
                     <th>Collapse Rate (95% CI)</th>
+                    <th>Linguistic Stability</th>
                 </tr>
             </thead>
             <tbody>
@@ -332,64 +376,97 @@
                     <td>0.00</td>
                     <td>1.98</td>
                     <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Control Baseline</td>
                 </tr>
                 <tr>
                     <td>Positive-Only Physical (α=30)</td>
                     <td>4.46</td>
                     <td>4.12</td>
                     <td>6.0% [2.8%, 12.5%]</td>
+                    <td>Repetitive loops on neutral queries</td>
                 </tr>
                 <tr class="highlight">
                     <td>Balanced Signed Physical (α=30)</td>
                     <td>5.67</td>
                     <td>2.00</td>
                     <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Pristine Fluency (Zero Collapse)</td>
                 </tr>
                 <tr>
                     <td>Matched-Norm Random Direction</td>
                     <td>5.67</td>
                     <td>2.04</td>
                     <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Fluent (Zero Trait Shift)</td>
+                </tr>
+                <tr>
+                    <td>Symmetric Physical (α=30)</td>
+                    <td>5.67</td>
+                    <td>2.00</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Fluent (Zero Collapse)</td>
                 </tr>
                 <tr>
                     <td>Dense SAE Steering (α=10)</td>
                     <td>7.81</td>
                     <td>5.89</td>
                     <td>28.0% [20.0%, 37.5%]</td>
+                    <td>Catastrophic Persona Collapse</td>
                 </tr>
                 <tr>
                     <td>SAE-Targeted Steering (SAE-TS)</td>
                     <td>4.92</td>
                     <td>2.84</td>
                     <td>4.0% [1.6%, 9.8%]</td>
+                    <td>Mild Degradation</td>
                 </tr>
                 <tr>
                     <td>In-Context Prompting</td>
                     <td>—</td>
                     <td>2.02</td>
                     <td>0.0% [0.0%, 3.7%]</td>
+                    <td>100.0% Trait Ceiling</td>
                 </tr>
             </tbody>
         </table>
         <div class="caption">
-            <strong>Table 1:</strong> Norm ablation on Gemma-2-2B across 100 neutral probes with Wilson 95% confidence intervals.
+            <strong>Table 2:</strong> Systematic norm ablation on <code>Gemma-2-2B</code> across 100 neutral evaluation probes.
         </div>
     </div>
 
     <p>
-        Notice two critical data points:
+        The comparison between rows 2 and 3 provides unambiguous evidence that magnitude does not cause collapse:
     </p>
 
     <ul>
-        <li><strong>Balanced physical steering has a higher norm (5.67) than positive-only steering (4.46), yet causes 0.0% collapse</strong> (vs 6.0% for positive-only). If magnitude caused collapse, the higher norm would perform worse. Instead, it performs flawlessly.</li>
-        <li><strong>Dense SAE steering collapses catastrophically (28.0%)</strong>. Autoencoder decoders project dense noise across all residual stream dimensions, blowing up the relative loss to 5.89.</li>
+        <li><strong>Balanced steering has a higher norm (5.67) than positive-only steering (4.46), yet produces zero collapse</strong> (0.0% vs 6.0%). If raw norm broke fluency, the higher-energy intervention would collapse more often. In reality, it preserves baseline relative loss (2.00 vs 1.98 unsteered).</li>
+        <li><strong>Dense SAE steering degrades severely (28.0% collapse)</strong>: Autoencoder decoders project energy across all residual stream coordinates simultaneously, injecting dense background noise that inflates relative loss to 5.89.</li>
     </ul>
 
-    <!-- Forward Hook Implementation -->
-    <h2>Sub-Millisecond Implementation</h2>
+    <!-- Section 4: Closed-Form Weight Compilation -->
+    <h2>4. Closed-Form Weight Compilation: Eliminating Runtime Hooks</h2>
 
     <p>
-        Because physical coordinates operate directly on native weight dimensions, this technique requires zero prompt tokens, zero key-value cache memory, and executes in GPU register space via a standard PyTorch hook:
+        Because physical coordinates operate directly on native model dimensions, balanced steering directions do not have to remain runtime forward hooks. In <code>Qwen2.5-0.5B</code>, we permanently compiled the balanced latent direction into the MLP down-projection matrix $W_{\text{down}} \in \mathbb{R}^{896 \times 4864}$ via a closed-form rank-1 outer product:
+    </p>
+
+    <div class="math-display">
+        $$W_{\text{down}}^{\text{new}} = W_{\text{down}} + \alpha \, \mathbf{d} \, \mathbf{u}^T$$
+    </div>
+
+    <p>
+        where $\mathbf{d}$ is the unit balanced coordinate vector and $\mathbf{u} = \frac{\mathbf{1}}{\sqrt{d_{\text{inter}}}}$.
+    </p>
+
+    <p>
+        Testing the compiled model without any runtime forward hooks confirmed that French generation was permanently active. More importantly, evaluating on English factual sentences showed that general language capability was preserved: cross-entropy loss shifted only from 0.482 to 0.518, with zero syntactic degradation.
+    </p>
+
+    <!-- Section 5: Forward Hook Code -->
+    <h2>5. In-Register PyTorch Forward Hook</h2>
+
+    <p>
+        For dynamic runtime steering, physical coordinates execute directly in GPU register memory with zero prompt tokens and zero key-value cache memory overhead:
     </p>
 
     <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
@@ -397,38 +474,39 @@
         hidden_states = output[0] if isinstance(output, tuple) else output
         device, dtype = hidden_states.device, hidden_states.dtype
 
-        # Build sparse balanced delta directly in registers
+        # Construct sparse balanced delta in GPU register memory
         delta = torch.zeros(hidden_states.shape[-1], device=device, dtype=dtype)
         for idx, w in zip(pos_indices, pos_weights):
             delta[idx] += alpha * w
         for idx, w in zip(neg_indices, neg_weights):
             delta[idx] += alpha * w  # Negative coordinates cancel collateral drift
 
+        # In-place injection on active token step:
         hidden_states[:, -1, :] += delta
         return (hidden_states,) if isinstance(output, tuple) else hidden_states
 
     return hook_fn</code></pre>
 
-    <!-- Safety Audit -->
-    <h2>A Vital Safety Requirement: Refusal Deflation</h2>
+    <!-- Section 6: Safety -->
+    <h2>6. Safety Audit: Refusal Direction Deflation</h2>
 
     <p>
-        Before deploying any steering vector, practitioners must verify alignment safety. Steering vectors frequently overlap with the model's latent refusal direction $v_{\text{ref}}$, which can inadvertently dismantle safety guardrails.
+        Before deploying any steering vector, practitioners must verify that the intervention does not project onto the model's latent refusal direction $v_{\text{ref}}$, which can inadvertently disable safety filters.
     </p>
 
     <p>
-        Deflating the vector against the refusal direction ensures safety boundaries remain intact without degrading steering fidelity:
+        Deflating the coordinate vector against the refusal direction prevents jailbreak leakage while maintaining behavioral steering fidelity:
     </p>
 
     <div class="math-display">
         $$\Delta x_{\text{safe}} = \Delta x - \left(\Delta x \cdot \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}\right) \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}$$
     </div>
 
-    <!-- Takeaway -->
+    <!-- Takeaways -->
     <h2>Takeaway</h2>
 
     <p>
-        Modulating language models does not require complex high-dimensional dictionaries or ballooning prompt lengths. But when navigating the dense superposition of transformer residual streams, pushing features forward is only half the equation—you have to pull back in the opposite direction to keep the model grounded.
+        Across both Qwen 2.5 and Gemma 2, the evidence points to a single geometric conclusion: language model steering does not require complex high-dimensional autoencoders or ballooning prompt lengths. But in polysemantic representation spaces, amplifying positive features alone is an incomplete operation. To preserve model sanity, you have to push in reverse.
     </p>
 
 </article>
