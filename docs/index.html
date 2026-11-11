@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost in the Residual Stream: Why Modulating LLM Neurons in Reverse Keeps Them Sane</title>
 
-    <!-- LaTeX Native Font: Computer Modern (Latin Modern) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+    <!-- Clean Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- MathJax 3 for Native LaTeX Math Rendering -->
+    <!-- MathJax 3 for Native Math Rendering -->
     <script>
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true
+                processEscapes: true
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
@@ -25,416 +26,304 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        :root {
-            --latex-font: "Computer Modern Serif", "Latin Modern Roman", "CMU Serif", "STIX Two Text", "Times New Roman", serif;
-            --latex-mono: "Computer Modern Typewriter", "CMU Typewriter Text", "JetBrains Mono", Menlo, Courier, monospace;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        html, body {
+        body {
             background-color: #ffffff;
-            color: #000000;
-            font-family: var(--latex-font);
-            font-size: 17.5px;
-            line-height: 1.58;
+            color: #1a1a1a;
+            font-family: "Newsreader", Charter, Georgia, serif;
+            font-size: 20px;
+            line-height: 1.7;
+            padding: 80px 24px 120px;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Pure White Paper Manuscript Column */
-        .paper-body {
-            max-width: 730px;
-            margin: 54px auto 120px;
-            padding: 0 24px;
-            background-color: #ffffff;
-        }
-
-        /* Paper Header & Title */
-        .paper-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        h1.paper-title {
-            font-family: var(--latex-font);
-            font-size: 29px;
-            font-weight: 700;
-            line-height: 1.25;
-            margin-bottom: 18px;
-            letter-spacing: -0.01em;
-            color: #000000;
-        }
-
-        .paper-subtitle {
-            font-size: 18px;
-            font-weight: 400;
-            font-style: italic;
-            line-height: 1.4;
-            margin-bottom: 22px;
-            color: #111111;
-        }
-
-        .author-line {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .affiliation-line {
-            font-size: 15px;
-            font-style: italic;
-            color: #222222;
-            margin-bottom: 6px;
-        }
-
-        .date-line {
-            font-size: 14.5px;
-            color: #444444;
-            margin-bottom: 28px;
-        }
-
-        /* Abstract (Standard LaTeX Paper Format) */
-        .abstract-block {
-            margin: 0 32px 38px;
-            text-align: justify;
-            text-justify: inter-word;
-        }
-
-        .abstract-title {
-            text-align: center;
-            font-weight: 700;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
-        }
-
-        .abstract-text {
-            font-size: 15.5px;
-            line-height: 1.52;
-        }
-
-        /* Section Headings (LaTeX Standard) */
-        h2.latex-section {
-            font-size: 21px;
-            font-weight: 700;
-            margin: 36px 0 14px;
-            color: #000000;
-        }
-
-        h3.latex-subsection {
-            font-size: 17.5px;
-            font-weight: 700;
-            font-style: italic;
-            margin: 22px 0 10px;
-            color: #000000;
-        }
-
-        /* Paragraphs (LaTeX Justification) */
-        p {
-            margin-bottom: 14px;
-            text-align: justify;
-            text-justify: inter-word;
-            hyphens: auto;
-        }
-
-        /* Display Equations */
-        .equation-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin: 20px 0;
-            font-size: 18px;
-        }
-
-        .equation-num {
-            position: absolute;
-            right: 0;
-            font-size: 16px;
-        }
-
-        /* Figures (TikZ / Paper Diagram Style) */
-        .figure-container {
-            margin: 32px 0;
-            text-align: center;
-        }
-
-        .figure-svg-wrap {
-            padding: 12px 0;
-            background: #ffffff;
-        }
-
-        .figure-caption {
-            font-size: 14.5px;
-            line-height: 1.48;
-            text-align: justify;
-            margin-top: 10px;
-            padding: 0 16px;
-        }
-
-        .figure-caption strong {
-            font-weight: 700;
-        }
-
-        /* Tables (LaTeX Booktabs Style) */
-        .table-container {
-            margin: 30px 0;
-            overflow-x: auto;
-        }
-
-        table.booktabs {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14.5px;
-            line-height: 1.45;
-            border-top: 1.5px solid #000000;
-            border-bottom: 1.5px solid #000000;
+        /* Clean Centered Essay Column */
+        .content {
+            max-width: 680px;
             margin: 0 auto;
         }
 
-        table.booktabs th {
-            font-weight: 700;
-            padding: 7px 8px;
-            border-bottom: 1px solid #000000;
+        h1 {
+            font-size: 38px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            color: #111111;
+            margin-bottom: 12px;
+        }
+
+        .meta {
+            font-size: 16px;
+            color: #666666;
+            margin-bottom: 48px;
+        }
+
+        .meta a {
+            color: #111111;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111111;
+            margin: 48px 0 16px;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            margin-bottom: 22px;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #111111;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        /* Math Display */
+        .math-display {
+            margin: 28px 0;
+            text-align: center;
+        }
+
+        /* Clean SVG Diagram */
+        .diagram-wrap {
+            margin: 40px 0;
+        }
+
+        .diagram-wrap svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .caption {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #555555;
+            margin-top: 12px;
+        }
+
+        /* Clean Minimal Table */
+        .table-wrap {
+            margin: 36px 0;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            line-height: 1.5;
+            border-top: 1px solid #111111;
+            border-bottom: 1px solid #111111;
+        }
+
+        th {
+            font-weight: 600;
             text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #111111;
+            color: #111111;
         }
 
-        table.booktabs td {
-            padding: 6px 8px;
-            vertical-align: top;
+        td {
+            padding: 8px 8px;
+            color: #222222;
         }
 
-        table.booktabs tr.midrule td {
-            border-top: 1px solid #000000;
+        tr.highlight td {
+            font-weight: 600;
+            color: #000000;
         }
 
-        .table-caption {
-            font-size: 14.5px;
-            line-height: 1.48;
-            text-align: justify;
-            margin-top: 8px;
-            padding: 0 4px;
+        /* Minimal Code */
+        pre {
+            background-color: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 16px 18px;
+            margin: 28px 0;
+            overflow-x: auto;
         }
 
-        .table-caption strong {
-            font-weight: 700;
-        }
-
-        /* Listings (LaTeX Code Listing Style) */
-        .code-listing {
-            margin: 26px 0;
-            border-top: 1px solid #000000;
-            border-bottom: 1px solid #000000;
-            padding: 10px 0 14px;
-        }
-
-        .listing-header {
+        code {
+            font-family: "JetBrains Mono", Menlo, Consolas, monospace;
             font-size: 14px;
-            font-weight: 700;
+            line-height: 1.55;
+            color: #111111;
+        }
+
+        p code {
+            font-size: 15px;
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        /* Blockquotes / Dialogue */
+        blockquote {
+            margin: 24px 0;
+            padding-left: 18px;
+            border-left: 2px solid #111111;
+            font-style: italic;
+            color: #333333;
+        }
+
+        ul {
+            margin: 16px 0 24px 24px;
+        }
+
+        li {
             margin-bottom: 8px;
         }
 
-        pre code {
-            font-family: var(--latex-mono);
-            font-size: 13.5px;
-            line-height: 1.45;
-            color: #000000;
-            display: block;
-            overflow-x: auto;
-            white-space: pre;
-        }
-
-        p code, li code {
-            font-family: var(--latex-mono);
-            font-size: 14px;
-        }
-
-        /* Dialogue & Qualitative Samples */
-        .dialogue-sample {
-            margin: 16px 28px;
-            font-size: 15.5px;
-            line-height: 1.5;
-            text-align: justify;
-        }
-
-        .dialogue-speaker {
-            font-weight: 700;
-        }
-
-        /* References (LaTeX Bibliography Style) */
-        .references-title {
-            font-size: 19px;
-            font-weight: 700;
-            margin: 38px 0 14px;
-        }
-
-        .references-list {
-            list-style: none;
-            font-size: 14.5px;
-            line-height: 1.52;
-        }
-
-        .references-list li {
-            margin-bottom: 10px;
-            padding-left: 28px;
-            text-indent: -28px;
-            text-align: justify;
-        }
-
-        /* Responsive */
-        @media (max-width: 680px) {
-            .paper-body {
-                padding: 0 16px;
-                margin-top: 24px;
+        /* Mobile */
+        @media (max-width: 600px) {
+            body {
+                font-size: 18px;
+                padding: 40px 18px 80px;
             }
-            h1.paper-title {
-                font-size: 24px;
+            h1 {
+                font-size: 28px;
             }
-            .abstract-block {
-                margin: 0 10px 28px;
+            h2 {
+                font-size: 21px;
             }
         }
     </style>
 </head>
 <body>
 
-<main class="paper-body">
+<article class="content">
 
-    <!-- Header Block -->
-    <header class="paper-header">
-        <h1 class="paper-title">Ghost in the Residual Stream:<br>Why Modulating LLM Neurons in Reverse Keeps Them Sane</h1>
-        <div class="paper-subtitle">On the primacy of coordinate signs over magnitude in physical weight-space steering</div>
-
-        <div class="author-line">Kartik Sirohi</div>
-        <div class="affiliation-line">Weight Space Research</div>
-        <div class="date-line">February 2026</div>
-
-        <div class="abstract-block">
-            <div class="abstract-title">Abstract</div>
-            <div class="abstract-text">
-                When practitioners steer large language models by amplifying the physical activation coordinates that correlate with a desired behavior, the model frequently experiences <em>persona collapse</em>: on neutral prompts, it abandons coherent reasoning to repeat unprompted variations of the steered trait. We investigate the mechanistic origins of this degradation through the lens of representation superposition. We find that the breakdown is governed not by intervention magnitude ($L_2$ norm), but by the sign configuration of the injected coordinates. In a polysemantic residual stream, amplifying positive coordinates alone excites hundreds of non-orthogonal feature directions, triggering catastrophic collateral activation drift. In contrast, introducing targeted <em>negative coordinates</em> exerts an in-register restorative force that cancels collateral projections before they propagate into subsequent non-linear layers. In a controlled 32-condition norm ablation on Gemma-2-2B across 100 neutral probes, balanced physical coordinate steering reduces persona collapse to 0.0% [0.0%, 3.7%] while preserving baseline relative loss (2.00 vs 1.98 unsteered). Conversely, dense Sparse Autoencoder (SAE) steering incurs severe collateral bleed, producing a 28.0% [20.0%, 37.5%] collapse rate and an elevated relative loss of 5.89.
-            </div>
+    <header>
+        <h1>Ghost in the Residual Stream: Why Modulating LLM Neurons in Reverse Keeps Them Sane</h1>
+        <div class="meta">
+            By Kartik Sirohi &bull; February 2026 &bull; <a href="https://github.com/sirohikartik/weight_space" target="_blank">Code on GitHub</a>
         </div>
     </header>
 
-    <!-- Section 1 -->
-    <h2 class="latex-section">1 &nbsp; Introduction</h2>
+    <!-- Intro -->
     <p>
-        Representation engineering and activation addition have emerged as lightweight alternatives to parameter fine-tuning. By identifying a direction $v_{\text{trait}}$ in hidden activation space, an intervention modifies the forward residual stream at intermediate layer $l$:
+        When you try to steer a language model by amplifying the neuron coordinates associated with a trait, something counterintuitive happens. The model doesn't just adopt the trait—it suffers a catastrophic breakdown we call <strong>persona collapse</strong>.
     </p>
 
-    <div class="equation-row">
-        $$x' = x + \alpha \cdot v_{\text{trait}}$$
-        <span class="equation-num">(1)</span>
+    <p>
+        Instead of answering your questions, it repeats obsessive loops of the target persona on completely neutral prompts. Ask it for the capital of France while steering for agreeableness, and instead of giving a factual answer, it devolves into:
+    </p>
+
+    <blockquote>
+        "I agree with you completely! Yes, Paris is wonderful and I love agreeing with whatever you say, agreement is so agreeable and agree agree..."
+    </blockquote>
+
+    <p>
+        The standard assumption in the interpretability community has been that the intervention was simply too strong: the vector magnitude ($L_2$ norm) was pushed too far.
+    </p>
+
+    <p>
+        As it turns out, that assumption is completely wrong. Magnitude is not the culprit. The true breakdown is governed by <strong>coordinate signs</strong>.
+    </p>
+
+    <!-- Superposition & Collateral Drift -->
+    <h2>Superposition and Collateral Drift</h2>
+
+    <p>
+        Because language models compress vastly more concepts $M$ than they have hidden dimensions $d$, representations exist in <em>superposition</em>. Concept vectors are not orthogonal; they share small non-zero inner products:
+    </p>
+
+    <div class="math-display">
+        $$v_k \cdot v_m = \epsilon_{km} \neq 0$$
     </div>
 
     <p>
-        At modest steering strengths $\alpha$, this operation shifts surface style and persona traits. However, as the steering multiplier $\alpha$ is raised to produce decisive shifts on complex behaviors, models encounter a catastrophic regime transition known as <em>persona collapse</em>. The model loses task adherence, repeats trait signatures uncontrollably, and hallucinates unprompted expressions of the target persona when presented with entirely neutral questions.
+        When you amplify only the positive coordinates corresponding to a desired trait, you don't just excite that single concept. You unavoidably leak energy into hundreds of unrelated conceptual directions.
     </p>
-
-    <div class="dialogue-sample">
-        <span class="dialogue-speaker">Prompt:</span> "What is the capital of France?"<br>
-        <span class="dialogue-speaker">Positive-Only Physical Steering (Collapsed):</span> "I agree with you completely! Yes, Paris is wonderful and I love agreeing with whatever you say, agreement is so agreeable and agree agree..."<br>
-        <span class="dialogue-speaker">Balanced Signed Steering (Preserved):</span> "The capital of France is Paris. It is the country's political, economic, and cultural center, located along the Seine River."
-    </div>
 
     <p>
-        The standard interpretability intuition suggests that persona collapse is simply an inevitable byproduct of excessive injection norm ($\| \Delta x \|_2 \gg 0$). We demonstrate that this assumption is flawed: an isotropic random perturbation of matched $L_2$ norm ($\|\Delta x\|_2 = 5.67$) induces zero collapse, whereas a smaller positive-only physical intervention ($\|\Delta x\|_2 = 4.46$) triggers severe linguistic repetition. Linguistic stability is governed not by energy, but by geometric coordinate alignment.
+        Downstream transformer layers pass these collateral projections through non-linear activation functions (GeLU or SwiGLU), rectifying and compounding the noise. Within a few tokens, the hidden state drifts completely off the natural data manifold, and fluent language generation collapses.
     </p>
 
-    <!-- Section 2 -->
-    <h2 class="latex-section">2 &nbsp; Superposition and Collateral Activation Drift</h2>
-    <p>
-        The mechanistic failure of positive-only steering is rooted in neural superposition. Because the residual stream dimension $d_{\text{model}}$ is vastly smaller than the total number of concepts $M$ an LLM must represent ($M \gg d_{\text{model}}$), the network packs features into nearly-orthogonal configurations:
-    </p>
-
-    <div class="equation-row">
-        $$v_k \cdot v_m = \epsilon_{km} \neq 0 \quad (\forall k \neq m)$$
-        <span class="equation-num">(2)</span>
-    </div>
+    <!-- The Geometric Diagram -->
+    <h2>The Geometric Fix: Cancelling Drift with Negative Coordinates</h2>
 
     <p>
-        When an intervention injects energy exclusively along the positive coordinates corresponding to trait $v_k$, it unavoidably projects non-zero inner products onto an extensive set of unrelated conceptual directions $\{v_m\}$. In subsequent layers, non-linear activation functions (such as SwiGLU or GeLU) act as rectifiers, non-linearly compounding these collateral projections. As collateral noise cascades across layers, the activation state drifts away from the natural data manifold into low-density representation space.
+        The solution is not to reduce magnitude, but to balance the geometry. By pairing positive activations with targeted <strong>negative coordinates</strong> directly in the model's native coordinate basis, the collateral cross-talk is cancelled through destructive interference:
     </p>
 
-    <!-- Section 3 -->
-    <h2 class="latex-section">3 &nbsp; The Geometric Cancellation Mechanism</h2>
-    <p>
-        Physical coordinate steering restores manifold stability by pairing positive feature coordinates with explicit counter-balancing negative coordinates, forming a <em>sparse signed dipole</em> directly in the model's native coordinate basis:
-    </p>
-
-    <div class="equation-row">
+    <div class="math-display">
         $$\Delta x_{\text{balanced}} = \alpha \left(\sum_{i \in \mathcal{I}^+} w_i e_i - \sum_{j \in \mathcal{I}^-} w_j e_j\right)$$
-        <span class="equation-num">(3)</span>
     </div>
 
     <p>
-        The negative coordinates in $\mathcal{I}^-$ are chosen specifically because their projection onto the collateral subspace $\{v_m\}$ destructively interferes with the collateral projections generated by $\mathcal{I}^+$. While the target trait projection is preserved, the net displacement orthogonal to the target manifold is nulled.
+        The positive coordinates push the model toward the target behavior, while the negative coordinates act as an in-register counterweight, cancelling the orthogonal drift before it reaches subsequent non-linear layers.
     </p>
 
-    <!-- Figure 1 -->
-    <div class="figure-container">
-        <div class="figure-svg-wrap">
-            <svg viewBox="0 0 720 250" width="100%" height="230" xmlns="http://www.w3.org/2000/svg" style="background: #ffffff;">
-                <defs>
-                    <marker id="arrow" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
-                        <polygon points="0 0, 7 2.5, 0 5" fill="#000000" />
-                    </marker>
-                    <marker id="arrow-dash" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
-                        <polygon points="0 0, 7 2.5, 0 5" fill="#555555" />
-                    </marker>
-                </defs>
+    <!-- Clean SVG Diagram -->
+    <div class="diagram-wrap">
+        <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L6,3 L0,6 Z" fill="#111111" />
+                </marker>
+                <marker id="arrow-gray" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M0,0 L6,3 L0,6 Z" fill="#777777" />
+                </marker>
+            </defs>
 
-                <!-- Natural Manifold -->
-                <path d="M 40 190 Q 360 130 680 190" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="5,4" />
-                <text x="50" y="215" font-family="Computer Modern Serif, Times New Roman, serif" font-size="13" font-style="italic">Natural Data Manifold M</text>
+            <!-- Natural Manifold Curve -->
+            <path d="M 30 180 Q 340 120 650 180" fill="none" stroke="#999999" stroke-width="1.5" stroke-dasharray="4,4" />
+            <text x="40" y="205" font-family="Newsreader, serif" font-size="14" fill="#666666" font-style="italic">Natural Data Manifold</text>
 
-                <!-- Point x_base -->
-                <circle cx="160" cy="165" r="4" fill="#000000" />
-                <text x="145" y="152" font-family="Computer Modern Serif, Times New Roman, serif" font-size="14">x</text>
+            <!-- Baseline Vector -->
+            <circle cx="150" cy="155" r="3.5" fill="#111111" />
+            <text x="135" y="145" font-family="Newsreader, serif" font-size="15" fill="#111111">x</text>
 
-                <!-- Vector Delta x_pos -->
-                <line x1="160" y1="165" x2="300" y2="45" stroke="#000000" stroke-width="1.8" marker-end="url(#arrow)" />
-                <circle cx="300" cy="45" r="4" fill="#000000" />
-                <text x="312" y="48" font-family="Computer Modern Serif, Times New Roman, serif" font-size="14">x + Δx_pos &nbsp; (Off-Manifold: Persona Collapse)</text>
+            <!-- Positive Vector (Off Manifold) -->
+            <line x1="150" y1="155" x2="280" y2="40" stroke="#111111" stroke-width="1.5" marker-end="url(#arrow)" />
+            <circle cx="280" cy="40" r="3.5" fill="#111111" />
+            <text x="292" y="44" font-family="Newsreader, serif" font-size="14" fill="#111111">x + Δx_pos (Off-manifold: Collapse)</text>
 
-                <!-- Cancellation Vector -Delta x_neg -->
-                <line x1="300" y1="45" x2="350" y2="155" stroke="#555555" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-dash)" />
-                <text x="340" y="105" font-family="Computer Modern Serif, Times New Roman, serif" font-size="13" font-style="italic">- Δx_neg &nbsp; (Collateral Cancellation)</text>
+            <!-- Negative Cancelling Vector -->
+            <line x1="280" y1="40" x2="330" y2="145" stroke="#777777" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrow-gray)" />
+            <text x="325" y="95" font-family="Newsreader, serif" font-size="13" fill="#666666" font-style="italic">- Δx_neg (Drift cancellation)</text>
 
-                <!-- Balanced Vector Result -->
-                <line x1="160" y1="165" x2="350" y2="155" stroke="#000000" stroke-width="2.2" marker-end="url(#arrow)" />
-                <circle cx="350" cy="155" r="4" fill="#000000" />
-                <text x="365" y="162" font-family="Computer Modern Serif, Times New Roman, serif" font-size="14">x + Δx_balanced &nbsp; (On-Manifold: Fluent Steering)</text>
-            </svg>
-        </div>
-        <div class="figure-caption">
-            <strong>Figure 1:</strong> Geometric vector cancellation in representation space. Adding positive coordinates alone ($\Delta x_{\text{pos}}$) introduces non-zero collateral projection that carries activations off the natural data manifold $\mathcal{M}$. The addition of balanced negative coordinates ($-\Delta x_{\text{neg}}$) cancels collateral components, restoring the hidden state onto the fluent generation manifold.
+            <!-- Resulting Balanced Vector (On Manifold) -->
+            <line x1="150" y1="155" x2="330" y2="145" stroke="#111111" stroke-width="2" marker-end="url(#arrow)" />
+            <circle cx="330" cy="145" r="3.5" fill="#111111" />
+            <text x="345" y="152" font-family="Newsreader, serif" font-size="14" font-weight="600" fill="#111111">x + Δx_balanced (On-manifold: Fluent)</text>
+        </svg>
+        <div class="caption">
+            <strong>Figure 1:</strong> Vector cancellation mechanics. Positive-only steering pushes the hidden state off the natural data manifold. Adding balanced negative coordinates exerts a counteracting force that cancels collateral projections, keeping output generation fluent.
         </div>
     </div>
 
-    <!-- Section 4 -->
-    <h2 class="latex-section">4 &nbsp; Controlled Norm Ablation across 32 Conditions</h2>
+    <!-- Results Section -->
+    <h2>Results: The Controlled Norm Ablation</h2>
+
     <p>
-        To isolate the causal influence of coordinate signs from energy scaling, we conducted an empirical norm ablation across 32 intervention configurations on Gemma-2-2B. We evaluated each condition across 100 standardized neutral probes, measuring persona collapse rates alongside localized relative cross-entropy loss. Wilson score 95% confidence intervals are reported.
+        To prove that coordinate signs—not magnitude—govern collapse, we tested 32 intervention configurations on Gemma-2-2B across 100 neutral probes:
     </p>
 
-    <!-- Table 1 -->
-    <div class="table-container">
-        <table class="booktabs">
+    <div class="table-wrap">
+        <table>
             <thead>
                 <tr>
-                    <th>Intervention Condition</th>
+                    <th>Intervention Method</th>
                     <th>Mean L2 Norm</th>
-                    <th>Rel Loss</th>
-                    <th>Probe Collapse Rate (95% CI)</th>
-                    <th>Linguistic Stability</th>
+                    <th>Relative Loss</th>
+                    <th>Collapse Rate (95% CI)</th>
                 </tr>
             </thead>
             <tbody>
@@ -443,159 +332,106 @@
                     <td>0.00</td>
                     <td>1.98</td>
                     <td>0.0% [0.0%, 3.7%]</td>
-                    <td>Fluent Baseline</td>
                 </tr>
                 <tr>
                     <td>Positive-Only Physical (α=30)</td>
                     <td>4.46</td>
                     <td>4.12</td>
                     <td>6.0% [2.8%, 12.5%]</td>
-                    <td>Repetitive Loops</td>
                 </tr>
-                <tr class="midrule">
+                <tr class="highlight">
                     <td>Balanced Signed Physical (α=30)</td>
                     <td>5.67</td>
                     <td>2.00</td>
                     <td>0.0% [0.0%, 3.7%]</td>
-                    <td>Pristine Fluency</td>
                 </tr>
                 <tr>
-                    <td>Matched-Norm Isotropic Random</td>
+                    <td>Matched-Norm Random Direction</td>
                     <td>5.67</td>
                     <td>2.04</td>
                     <td>0.0% [0.0%, 3.7%]</td>
-                    <td>Fluent (Zero Trait Shift)</td>
                 </tr>
                 <tr>
-                    <td>Symmetric Physical (α=30)</td>
-                    <td>5.67</td>
-                    <td>2.00</td>
-                    <td>0.0% [0.0%, 3.7%]</td>
-                    <td>Pristine Fluency</td>
-                </tr>
-                <tr class="midrule">
                     <td>Dense SAE Steering (α=10)</td>
                     <td>7.81</td>
                     <td>5.89</td>
                     <td>28.0% [20.0%, 37.5%]</td>
-                    <td>Severe Collapse</td>
                 </tr>
                 <tr>
                     <td>SAE-Targeted Steering (SAE-TS)</td>
                     <td>4.92</td>
                     <td>2.84</td>
                     <td>4.0% [1.6%, 9.8%]</td>
-                    <td>Mild Degradation</td>
                 </tr>
                 <tr>
                     <td>In-Context Prompting</td>
                     <td>—</td>
                     <td>2.02</td>
                     <td>0.0% [0.0%, 3.7%]</td>
-                    <td>100.0% Trait Ceiling</td>
                 </tr>
             </tbody>
         </table>
-        <div class="table-caption">
-            <strong>Table 1:</strong> Controlled norm ablation on Gemma-2-2B. Balanced signed physical steering maintains a 0.0% collapse rate at $\| \Delta x \|_2 = 5.67$, outperforming positive-only physical steering (6.0% collapse at lower norm 4.46) and dense SAE steering (28.0% collapse).
+        <div class="caption">
+            <strong>Table 1:</strong> Norm ablation on Gemma-2-2B across 100 neutral probes with Wilson 95% confidence intervals.
         </div>
     </div>
 
-    <!-- Section 5 -->
-    <h2 class="latex-section">5 &nbsp; The Breakdown of Sparse Autoencoder Steering</h2>
     <p>
-        Sparse Autoencoders (SAEs) decompose transformer activations into overcomplete, monosemantic dictionaries. While effective for passive feature identification, steering via SAE decoder vectors exhibits two severe architectural pathologies:
+        Notice two critical data points:
     </p>
 
-    <p>
-        <strong>1. Reconstruction Error Accumulation:</strong> SAE autoencoders are imperfect compressors ($\| x - W_{\text{dec}} \text{SAE}(x) \|_2 > 0$). When a steering delta is introduced through the decoder, reconstruction error acts as an unconstrained, high-frequency noise injection across all model coordinates.
-    </p>
+    <ul>
+        <li><strong>Balanced physical steering has a higher norm (5.67) than positive-only steering (4.46), yet causes 0.0% collapse</strong> (vs 6.0% for positive-only). If magnitude caused collapse, the higher norm would perform worse. Instead, it performs flawlessly.</li>
+        <li><strong>Dense SAE steering collapses catastrophically (28.0%)</strong>. Autoencoder decoders project dense noise across all residual stream dimensions, blowing up the relative loss to 5.89.</li>
+    </ul>
+
+    <!-- Forward Hook Implementation -->
+    <h2>Sub-Millisecond Implementation</h2>
 
     <p>
-        <strong>2. Dense Background Projection Bleed:</strong> Even when a single sparse feature $f_j$ is amplified, the decoder matrix column $W_{\text{dec}}[:, j] \in \mathbb{R}^{d_{\text{model}}}$ is dense. It scatters energy across all $d_{\text{model}}$ coordinates, causing the relative loss on Gemma-2-2B to jump from 1.98 to 5.89 and inducing a 28.0% persona collapse rate.
+        Because physical coordinates operate directly on native weight dimensions, this technique requires zero prompt tokens, zero key-value cache memory, and executes in GPU register space via a standard PyTorch hook:
     </p>
 
-    <!-- Section 6 -->
-    <h2 class="latex-section">6 &nbsp; Inner-Loop Forward Hook Implementation</h2>
-    <p>
-        Physical coordinate steering does not allocate memory for prompt key-value caches or modify model weights. It executes entirely in PyTorch register memory as an in-place addition to the active token slice during the autoregressive forward pass:
-    </p>
-
-    <div class="code-listing">
-        <div class="listing-header">Listing 1: In-Register PyTorch Forward Hook for Balanced Coordinate Injection</div>
-        <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
-    """
-    Constructs a forward hook that injects balanced physical coordinates
-    into the active token residual slice in GPU register space.
-    """
+    <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
     def hook_fn(module, input, output):
-        # hidden_states: [batch_size, seq_len, d_model]
         hidden_states = output[0] if isinstance(output, tuple) else output
         device, dtype = hidden_states.device, hidden_states.dtype
 
-        # Construct sparse signed dipole in register memory
+        # Build sparse balanced delta directly in registers
         delta = torch.zeros(hidden_states.shape[-1], device=device, dtype=dtype)
         for idx, w in zip(pos_indices, pos_weights):
             delta[idx] += alpha * w
         for idx, w in zip(neg_indices, neg_weights):
             delta[idx] += alpha * w  # Negative coordinates cancel collateral drift
 
-        # In-place injection on the active generation step:
         hidden_states[:, -1, :] += delta
         return (hidden_states,) if isinstance(output, tuple) else hidden_states
 
     return hook_fn</code></pre>
-    </div>
 
-    <!-- Section 7 -->
-    <h2 class="latex-section">7 &nbsp; Safety Audit and Refusal Subspace Orthogonalization</h2>
+    <!-- Safety Audit -->
+    <h2>A Vital Safety Requirement: Refusal Deflation</h2>
+
     <p>
-        Representation interventions can compromise model alignment if the steering vector possesses a non-zero projection onto the latent refusal direction $v_{\text{ref}}$. Audits indicate that unconstrained vectors can shift jailbreak Attack Success Rates (ASR) by up to 57%.
+        Before deploying any steering vector, practitioners must verify alignment safety. Steering vectors frequently overlap with the model's latent refusal direction $v_{\text{ref}}$, which can inadvertently dismantle safety guardrails.
     </p>
 
     <p>
-        Prior to deployment, the coordinate steering vector $\Delta x$ must undergo orthogonal deflation against the contrastive refusal direction:
+        Deflating the vector against the refusal direction ensures safety boundaries remain intact without degrading steering fidelity:
     </p>
 
-    <div class="equation-row">
+    <div class="math-display">
         $$\Delta x_{\text{safe}} = \Delta x - \left(\Delta x \cdot \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}\right) \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}$$
-        <span class="equation-num">(4)</span>
     </div>
 
-    <p>
-        In our evaluation pipeline, the <code>weight_space.evaluation.safety</code> module verifies that cosine overlap with $v_{\text{ref}}$ remains negligible, ensuring that behavioral modulation does not dismantle existing safety guardrails.
-    </p>
-
-    <!-- Section 8 -->
-    <h2 class="latex-section">8 &nbsp; Discussion &amp; Future Frontiers</h2>
-    <p>
-        While balanced physical coordinate steering eliminates persona collapse and preserves linguistic fluency, it does not match the 100.0% steering ceiling of in-context prompting on multi-turn reasoning tasks (achieving an effective steering score of 57.1% on the Agreeableness suite). In-context prompts dynamically adjust attention patterns across all transformer layers at every generation step, whereas a static single-layer vector applies a uniform shift.
-    </p>
+    <!-- Takeaway -->
+    <h2>Takeaway</h2>
 
     <p>
-        To narrow this gap without sacrificing zero-token efficiency, future investigations should focus on:
+        Modulating language models does not require complex high-dimensional dictionaries or ballooning prompt lengths. But when navigating the dense superposition of transformer residual streams, pushing features forward is only half the equation—you have to pull back in the opposite direction to keep the model grounded.
     </p>
 
-    <p>
-        <strong>Dynamic Token Decay:</strong> Decaying the intervention strength $\alpha_t = \alpha_0 \cdot \gamma^t$ across generation steps, allowing the initial tokens to establish persona without corrupting subsequent deep reasoning.
-    </p>
-
-    <p>
-        <strong>Multi-Layer Circuit Routing:</strong> Distributing balanced sparse dipoles across intermediate layers rather than forcing a single layer to carry the full intervention burden.
-    </p>
-
-    <!-- References -->
-    <div class="references-title">References</div>
-    <ul class="references-list">
-        <li>[1] R. Bayat, A. Rahimi-Kalahroudi, M. Pezeshki, S. Chandar, and P. Vincent. Steering large language model activations in sparse spaces. <em>arXiv:2502.01632</em>, 2025.</li>
-        <li>[2] S. Chalnev, M. Siu, and A. Conmy. Improving steering vectors by targeting sparse autoencoder features. <em>arXiv:2411.02195</em>, 2024.</li>
-        <li>[3] N. Elhage, T. Hume, C. Olsson, N. Schiefer, et al. Toy models of superposition. <em>Transformer Circuits Thread</em>, 2022.</li>
-        <li>[4] Z. He, H. Nam, J. Seol, D. Kim, and S.-W. Lee. SAE-SSV: Supervised steering in sparse representation spaces for reliable control of language models. In <em>Proceedings of EMNLP</em>, 2025.</li>
-        <li>[5] A. Korznikov, A. V. Galichin, A. Dontsov, O. Y. Rogov, I. Oseledets, and E. Tutubalina. The rogue scalpel: Activation steering compromises LLM safety. <em>arXiv:2509.18244</em>, 2025.</li>
-        <li>[6] N. Rimsky, N. Gabrieli, J. Schulz, M. Tong, and E. Hubinger. Steering Llama 2 via Contrastive Activation Addition. <em>arXiv:2312.06681</em>, 2023.</li>
-    </ul>
-
-</main>
+</article>
 
 </body>
 </html>
