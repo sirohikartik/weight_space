@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost in the Residual Stream: Why Modulating LLM Neurons in Reverse Keeps Them Sane</title>
 
-    <!-- Professional Serif & Code Typography -->
+    <!-- Academic Paper-grade Serif & Monospace Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- MathJax 3 for Native LaTeX Math Rendering ($ and $$) -->
     <script>
@@ -28,18 +28,16 @@
 
     <style>
         :root {
-            --pdf-bg: #525659;
-            --pdf-page-bg: #ffffff;
-            --pdf-bar-bg: #323639;
-            --pdf-bar-text: #f1f3f4;
-            --pdf-bar-border: #202124;
-            --text-main: #111827;
+            --bg-color: #ffffff;
+            --text-color: #111827;
             --text-secondary: #374151;
             --text-muted: #6b7280;
-            --accent-blue: #2563eb;
-            --accent-blue-hover: #1d4ed8;
-            --serif-font: "Crimson Pro", Georgia, Cambria, "Times New Roman", serif;
-            --sans-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --accent-blue: #1d4ed8;
+            --accent-blue-subtle: #eff6ff;
+            --border-light: #e5e7eb;
+            --border-dark: #111827;
+            --paper-font: "Newsreader", "Charter", Georgia, "Times New Roman", serif;
+            --ui-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             --code-font: "JetBrains Mono", Menlo, Consolas, monospace;
         }
 
@@ -50,414 +48,337 @@
         }
 
         body {
-            background-color: var(--pdf-bg);
-            color: var(--text-main);
-            font-family: var(--serif-font);
-            font-size: 19.5px;
-            line-height: 1.7;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--paper-font);
+            font-size: 20px;
+            line-height: 1.74;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Fixed PDF Viewer Toolbar */
-        .pdf-toolbar {
-            position: fixed;
+        /* Top Minimal Header */
+        .site-nav {
+            border-bottom: 1px solid var(--border-light);
+            background: #ffffff;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            height: 48px;
-            background-color: var(--pdf-bar-bg);
-            border-bottom: 1px solid var(--pdf-bar-border);
-            color: var(--pdf-bar-text);
+            z-index: 100;
+        }
+
+        .site-nav-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 14px 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
-            font-family: var(--sans-font);
+            align-items: center;
+            font-family: var(--ui-font);
             font-size: 13.5px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
         }
 
-        .pdf-toolbar-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .pdf-doc-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            color: #e8eaed;
-        }
-
-        .pdf-icon {
-            color: #ef4444;
-            font-size: 16px;
-        }
-
-        .pdf-toolbar-center {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pdf-page-pill {
-            background-color: #202124;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 12.5px;
-            font-weight: 500;
-            color: #d1d5db;
-        }
-
-        .pdf-toolbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .pdf-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #e5e7eb;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: var(--sans-font);
-            font-size: 12.5px;
-            font-weight: 500;
+        .nav-brand {
+            font-weight: 600;
+            color: var(--text-color);
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
+            letter-spacing: -0.01em;
         }
 
-        .pdf-btn:hover {
-            background: rgba(255, 255, 255, 0.18);
-            color: #ffffff;
-        }
-
-        /* PDF Viewer Container & Pages */
-        .pdf-viewport {
-            margin-top: 48px;
-            padding: 32px 16px 80px;
+        .nav-links {
             display: flex;
-            flex-direction: column;
+            gap: 18px;
             align-items: center;
-            gap: 28px;
         }
 
-        /* Each Individual PDF Page Sheet */
-        .pdf-page {
-            background-color: var(--pdf-page-bg);
-            width: 100%;
-            max-width: 860px;
-            min-height: 1140px;
-            padding: 72px 84px 84px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.2);
-            border-radius: 2px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* PDF Running Header & Footer */
-        .page-running-header {
-            font-family: var(--sans-font);
-            font-size: 12px;
-            font-weight: 500;
+        .nav-links a {
             color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-color);
+        }
+
+        .nav-github-btn {
+            background: #f3f4f6;
+            color: #111827 !important;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .nav-github-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* Article Wrapper (White Centered Reading Column) */
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 24px 120px;
+        }
+
+        /* Paper-like Header Block */
+        .article-header {
+            margin-bottom: 44px;
+        }
+
+        .article-category {
+            font-family: var(--ui-font);
+            font-size: 12.5px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 8px;
-            margin-bottom: 36px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-running-footer {
-            margin-top: auto;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
-            font-family: var(--sans-font);
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Document Header & Title */
-        .doc-title-block {
-            margin-bottom: 32px;
-        }
-
-        .doc-title {
-            font-family: var(--serif-font);
-            font-size: 38px;
-            font-weight: 700;
-            line-height: 1.18;
-            letter-spacing: -0.02em;
-            color: #0f172a;
+            letter-spacing: 0.08em;
+            color: var(--accent-blue);
             margin-bottom: 14px;
         }
 
-        .doc-subtitle {
-            font-size: 21px;
-            font-weight: 400;
-            font-style: italic;
-            color: #475569;
-            line-height: 1.45;
-            margin-bottom: 22px;
+        h1.article-title {
+            font-family: var(--paper-font);
+            font-size: 44px;
+            font-weight: 700;
+            line-height: 1.16;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            margin-bottom: 18px;
         }
 
-        .doc-meta-row {
+        .article-subtitle {
+            font-size: 22px;
+            line-height: 1.45;
+            font-style: italic;
+            color: #4b5563;
+            margin-bottom: 26px;
+        }
+
+        .article-byline {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #0f172a;
-            font-family: var(--sans-font);
-            font-size: 13.5px;
-            color: #475569;
-        }
-
-        .meta-author {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .meta-tag {
-            background-color: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-            color: #334155;
-        }
-
-        /* Executive Callout Hook */
-        .hook-card {
-            background-color: #f8fafc;
-            border-left: 4px solid #2563eb;
-            padding: 20px 24px;
-            margin: 28px 0;
-            border-radius: 0 4px 4px 0;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #1e293b;
-        }
-
-        .hook-card strong {
-            color: #0f172a;
-        }
-
-        /* Typography & Headings */
-        h2.sec-heading {
-            font-family: var(--serif-font);
-            font-size: 25px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 36px 0 14px;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h2.sec-heading span.num {
-            font-family: var(--sans-font);
-            font-size: 17px;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        h3.subsec-heading {
-            font-family: var(--serif-font);
-            font-size: 20.5px;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 24px 0 10px;
-        }
-
-        p {
-            margin-bottom: 18px;
-            color: #1f2937;
-            text-align: justify;
-            text-justify: inter-word;
-        }
-
-        strong {
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        /* Dialogue Box / Qualitative Comparison */
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin: 24px 0;
-            font-family: var(--sans-font);
-            font-size: 14.5px;
-            line-height: 1.55;
-        }
-
-        .comparison-pane {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 16px 18px;
-        }
-
-        .pane-bad {
-            border-top: 3px solid #ef4444;
-            background: #fffdfd;
-        }
-
-        .pane-good {
-            border-top: 3px solid #10b981;
-            background: #fcfdfd;
-        }
-
-        .pane-badge {
-            font-size: 11.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
-
-        .badge-bad { color: #dc2626; }
-        .badge-good { color: #059669; }
-
-        .pane-content {
-            font-family: var(--serif-font);
-            font-size: 16.5px;
-            font-style: italic;
-            color: #334155;
-        }
-
-        /* Math Display Blocks with Right Equation Numbering */
-        .math-eq-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin: 22px 0;
-            padding: 6px 0;
-            font-size: 20px;
-        }
-
-        .math-eq-number {
-            position: absolute;
-            right: 0;
-            font-family: var(--sans-font);
+            padding: 16px 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            font-family: var(--ui-font);
             font-size: 14px;
             color: var(--text-muted);
         }
 
-        /* Figures */
-        .figure-block {
-            margin: 28px 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 18px;
+        .byline-author {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Abstract / Overview Box (Clean Academic Box) */
+        .summary-card {
+            background-color: #f9fafb;
+            border-left: 3.5px solid var(--accent-blue);
+            padding: 22px 26px;
+            margin: 36px 0 46px;
+            border-radius: 0 4px 4px 0;
+            font-size: 19px;
+            line-height: 1.62;
+            color: #1f2937;
+        }
+
+        .summary-card strong {
+            color: #0f172a;
+        }
+
+        /* Section Headings */
+        h2.section-heading {
+            font-family: var(--paper-font);
+            font-size: 27px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.015em;
+            margin: 48px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        h2.section-heading .sec-num {
+            font-family: var(--ui-font);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-right: 8px;
+        }
+
+        h3.subsection-heading {
+            font-family: var(--paper-font);
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+            margin: 28px 0 12px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        /* Qualitative Comparison Cards */
+        .comparison-deck {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 26px 0;
+        }
+
+        .comparison-card {
             background: #ffffff;
-            text-align: center;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 18px 20px;
+            font-family: var(--ui-font);
+            font-size: 14.5px;
+            line-height: 1.5;
+        }
+
+        .card-bad {
+            border-top: 3px solid #ef4444;
+            background: #fffafa;
+        }
+
+        .card-good {
+            border-top: 3px solid #10b981;
+            background: #f7fdf9;
+        }
+
+        .card-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .card-label-bad { color: #dc2626; }
+        .card-label-good { color: #059669; }
+
+        .card-quote {
+            font-family: var(--paper-font);
+            font-size: 17.5px;
+            font-style: italic;
+            color: #1f2937;
+        }
+
+        /* Equations (Paper Style with Right Numbering) */
+        .math-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 26px 0;
+            padding: 10px 0;
+            font-size: 21px;
+        }
+
+        .math-number {
+            position: absolute;
+            right: 0;
+            font-family: var(--ui-font);
+            font-size: 14.5px;
+            color: var(--text-muted);
+        }
+
+        /* Figures */
+        .figure-wrap {
+            margin: 36px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 22px;
+            background: #ffffff;
         }
 
         .figure-caption {
-            margin-top: 12px;
-            font-family: var(--sans-font);
-            font-size: 13.5px;
-            line-height: 1.5;
-            color: #475569;
+            margin-top: 14px;
+            font-family: var(--ui-font);
+            font-size: 14px;
+            line-height: 1.55;
+            color: #4b5563;
             text-align: left;
         }
 
-        /* Table Styling */
+        .figure-caption strong {
+            color: #111827;
+        }
+
+        /* Tables (Paper Booktabs Style) */
         .table-wrap {
-            margin: 26px 0;
+            margin: 32px 0;
             overflow-x: auto;
         }
 
-        table.data-table {
+        table.paper-table {
             width: 100%;
             border-collapse: collapse;
-            font-family: var(--sans-font);
-            font-size: 13.5px;
-            line-height: 1.45;
-            border-top: 2px solid #0f172a;
-            border-bottom: 2px solid #0f172a;
+            font-family: var(--ui-font);
+            font-size: 14px;
+            line-height: 1.5;
+            border-top: 2px solid var(--border-dark);
+            border-bottom: 2px solid var(--border-dark);
         }
 
-        table.data-table th {
+        table.paper-table th {
             font-weight: 700;
-            color: #0f172a;
-            padding: 10px 10px;
-            border-bottom: 1px solid #cbd5e1;
+            color: #111827;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-dark);
             text-align: left;
-            background: #f8fafc;
+            background: #fafafa;
         }
 
-        table.data-table td {
-            padding: 8px 10px;
-            color: #334155;
-            border-bottom: 1px solid #f1f5f9;
+        table.paper-table td {
+            padding: 9px 12px;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
         }
 
-        table.data-table tr.highlight-row {
+        table.paper-table tr.highlight-row {
             background-color: #f0fdf4;
             font-weight: 600;
         }
 
-        table.data-table tr.highlight-row td {
-            color: #14532d;
+        table.paper-table tr.highlight-row td {
+            color: #166534;
         }
 
-        table.data-table tr.danger-row {
+        table.paper-table tr.danger-row {
             background-color: #fef2f2;
         }
 
-        table.data-table tr.danger-row td {
-            color: #7f1d1d;
+        table.paper-table tr.danger-row td {
+            color: #991b1b;
         }
 
         .table-caption {
-            font-family: var(--sans-font);
-            font-size: 13.5px;
-            color: #475569;
-            margin-top: 8px;
-            line-height: 1.45;
+            font-family: var(--ui-font);
+            font-size: 14px;
+            color: #4b5563;
+            margin-top: 10px;
+            line-height: 1.5;
         }
 
-        /* Code Listing */
-        .code-card {
+        /* Code Listings */
+        .code-container {
             background: #0f172a;
             border-radius: 6px;
-            padding: 16px 20px;
-            margin: 24px 0;
+            padding: 18px 22px;
+            margin: 28px 0;
             overflow-x: auto;
         }
 
-        .code-card-header {
-            font-family: var(--sans-font);
+        .code-header {
+            font-family: var(--ui-font);
             font-size: 12px;
-            color: #94a3b8;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
+            letter-spacing: 0.06em;
+            color: #94a3b8;
+            margin-bottom: 12px;
             border-bottom: 1px solid #334155;
             padding-bottom: 6px;
         }
@@ -465,438 +386,411 @@
         pre code {
             font-family: var(--code-font);
             font-size: 14px;
-            line-height: 1.6;
-            color: #e2e8f0;
+            line-height: 1.62;
+            color: #f8fafc;
         }
 
         p code, li code {
             font-family: var(--code-font);
-            font-size: 15px;
-            background-color: #f1f5f9;
-            padding: 2px 5px;
-            border-radius: 3px;
-            color: #0f172a;
+            font-size: 15.5px;
+            background-color: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #111827;
         }
 
-        /* Citations & Notes */
-        .notes-list {
-            list-style: none;
-            margin-top: 14px;
-            font-family: var(--sans-font);
-            font-size: 13.5px;
+        /* Callout Boxes */
+        .note-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 3.5px solid #0f172a;
+            padding: 18px 22px;
+            margin: 28px 0;
+            font-size: 18px;
             line-height: 1.6;
-            color: #475569;
+            border-radius: 0 4px 4px 0;
         }
 
-        .notes-list li {
-            margin-bottom: 10px;
-            padding-left: 24px;
+        /* Bibliography / References */
+        .ref-list {
+            list-style: none;
+            margin-top: 16px;
+            font-family: var(--ui-font);
+            font-size: 14px;
+            line-height: 1.65;
+            color: #4b5563;
+        }
+
+        .ref-list li {
+            margin-bottom: 12px;
+            padding-left: 28px;
             position: relative;
         }
 
-        .notes-list li::before {
-            content: "•";
+        .ref-list li .ref-num {
             position: absolute;
-            left: 8px;
-            color: #2563eb;
-            font-size: 16px;
+            left: 0;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Footer */
+        .article-footer {
+            margin-top: 70px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+            font-family: var(--ui-font);
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* Responsive Breakpoints */
-        @media (max-width: 860px) {
-            .pdf-page {
-                padding: 42px 28px 60px;
+        @media (max-width: 768px) {
+            h1.article-title {
+                font-size: 32px;
             }
-            .comparison-grid {
+            .article-subtitle {
+                font-size: 19px;
+            }
+            .comparison-deck {
                 grid-template-columns: 1fr;
             }
-            .doc-title {
-                font-size: 29px;
-            }
-        }
-
-        @media print {
             body {
-                background: none;
-            }
-            .pdf-toolbar {
-                display: none;
-            }
-            .pdf-viewport {
-                margin: 0;
-                padding: 0;
-                gap: 0;
-            }
-            .pdf-page {
-                box-shadow: none;
-                border: none;
-                page-break-after: always;
-                min-height: auto;
-                padding: 40px 48px;
+                font-size: 18.5px;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- PDF Reader Top Toolbar -->
-<header class="pdf-toolbar">
-    <div class="pdf-toolbar-left">
-        <span class="pdf-icon">📄</span>
-        <span class="pdf-doc-badge">ghost_in_the_residual_stream.pdf</span>
+<!-- Minimalist White Top Navigation -->
+<nav class="site-nav">
+    <div class="site-nav-inner">
+        <a class="nav-brand" href="#">Weight Space Interpretability</a>
+        <div class="nav-links">
+            <a href="#mechanism">Mechanism</a>
+            <a href="#ablation">Norm Ablation</a>
+            <a href="#code">Code</a>
+            <a href="#safety">Safety</a>
+            <a class="nav-github-btn" href="https://github.com/sirohikartik/weight_space" target="_blank">GitHub</a>
+        </div>
     </div>
-    <div class="pdf-toolbar-center">
-        <span class="pdf-page-pill">Page 1 of 4</span>
+</nav>
+
+<!-- Clean White Reading Column -->
+<main class="article-container">
+
+    <header class="article-header">
+        <div class="article-category">Mechanistic Interpretability &bull; Research Blog</div>
+        <h1 class="article-title">Ghost in the Residual Stream: Why Modulating LLM Neurons in Reverse Keeps Them Sane</h1>
+        <p class="article-subtitle">How coordinate signs matter far more than magnitude in physical weight-space steering, and why pushing positive features alone leads to persona collapse.</p>
+
+        <div class="article-byline">
+            <div>
+                By <span class="byline-author">Kartik Sirohi</span> &bull; Weight Space Research
+            </div>
+            <div>
+                February 2026 &bull; 12 min read
+            </div>
+        </div>
+    </header>
+
+    <div class="summary-card">
+        <strong>The Core Finding:</strong> When you attempt to steer a language model by simply amplifying the neuron coordinates associated with a trait, the model does not become more expressive. Instead, it collapses into psychotic, repetitive loops. But when you balance those positive coordinates with <em>negative coordinates</em> that cancel out collateral activation drift, the model retains pristine linguistic fluency across 100 neutral probes while achieving zero persona collapse.
     </div>
-    <div class="pdf-toolbar-right">
-        <button class="pdf-btn" onclick="window.print()">🖨 Print / Save PDF</button>
-        <a class="pdf-btn" href="https://github.com/sirohikartik/weight_space" target="_blank">⚡ GitHub Repo</a>
+
+    <!-- Section 1 -->
+    <h2 class="section-heading"><span class="sec-num">1</span> The Paradox of Positive Steering</h2>
+    <p>
+        In modern representation engineering, the default intervention is intuitive: identify a direction in activation space that corresponds to a desired behavior, scale it by an intervention strength $\alpha$, and add it directly into the residual stream:
+    </p>
+
+    <div class="math-block">
+        $$x' = x + \alpha \cdot v_{\text{trait}}$$
+        <span class="math-number">(1)</span>
     </div>
-</header>
 
-<!-- PDF Viewer Viewport containing the continuous PDF Pages -->
-<main class="pdf-viewport">
+    <p>
+        At small values of $\alpha$, this produces gentle behavioral shifts. But when you increase $\alpha$ to achieve decisive steering on complex tasks, the model abruptly suffers from <strong>Persona Collapse</strong>. On completely neutral queries, it ignores the question and spews hallucinated repetitions of the steered concept.
+    </p>
 
-    <!-- ================= PAGE 1 ================= -->
-    <article class="pdf-page" id="page-1">
-        <div class="page-running-header">
-            <span>Ghost in the Residual Stream</span>
-            <span>Document • 4 Pages</span>
-        </div>
-
-        <header class="doc-title-block">
-            <h1 class="doc-title">Ghost in the Residual Stream: Why Modulating LLM Neurons in Reverse Keeps Them Sane</h1>
-            <p class="doc-subtitle">How coordinate signs matter far more than magnitude in physical weight-space steering, and why pushing positive features alone leads straight to persona collapse.</p>
-
-            <div class="doc-meta-row">
-                <span class="meta-author">Kartik Sirohi &bull; Weight Space Research</span>
-                <span class="meta-tag">Deep Interpretability &bull; 2026</span>
-            </div>
-        </header>
-
-        <div class="hook-card">
-            <strong>The Core Discovery:</strong> If you try to make an LLM more empathetic, creative, or agreeable by simply amplifying the neuron coordinates that activate for those behaviors, the model doesn't become super-agreeable. It collapses into psychotic, loop-bound repetition. But if you simultaneously inject <em>negative coordinates</em> that cancel collateral activation drift, the model retains pristine linguistic fluency across 100 neutral probes while zeroing out persona collapse.
-        </div>
-
-        <h2 class="sec-heading"><span class="num">1</span> The Fatal Trap of Positive-Only Steering</h2>
-        <p>
-            When practitioners attempt activation steering in large language models, the intuitive strategy is straightforward: identify the direction corresponding to a desired trait, scale it by a positive constant $\alpha$, and add it to the residual stream:
-        </p>
-
-        <div class="math-eq-row">
-            $$x' = x + \alpha \cdot v_{\text{trait}}$$
-            <span class="math-eq-number">(1)</span>
-        </div>
-
-        <p>
-            This simple intervention works remarkably well at small scales or on shallow benchmarks. But when you dial up $\alpha$ to achieve decisive behavioral shifts, standard models suffer what we call <strong>Persona Collapse</strong>. The model stops answering questions and instead hallucinates incoherent repetitions of the steering concept on completely unrelated neutral queries.
-        </p>
-
-        <div class="comparison-grid">
-            <div class="comparison-pane pane-bad">
-                <div class="pane-badge badge-bad">Positive-Only Steering (Collapsed)</div>
-                <div class="pane-content">
-                    "Q: What is the capital of France?<br>
-                    A: I agree with you completely! Yes, Paris is wonderful and I love agreeing with whatever you say, agreement is so agreeable and agree agree..."
-                </div>
-            </div>
-            <div class="comparison-pane pane-good">
-                <div class="pane-badge badge-good">Balanced Coordinate Steering (Preserved)</div>
-                <div class="pane-content">
-                    "Q: What is the capital of France?<br>
-                    A: The capital of France is Paris. It is widely recognized as a major center of European culture, commerce, and diplomacy."
-                </div>
+    <div class="comparison-deck">
+        <div class="comparison-card card-bad">
+            <div class="card-label card-label-bad">Positive-Only Physical Steering (Collapsed)</div>
+            <div class="card-quote">
+                "Q: What is the capital of France?<br>
+                A: I agree with you completely! Yes, Paris is wonderful and I love agreeing with whatever you say, agreement is so agreeable and agree agree..."
             </div>
         </div>
-
-        <h2 class="sec-heading"><span class="num">2</span> Superposition and the Anatomy of Collateral Drift</h2>
-        <p>
-            Why does positive steering break the model? In polysemantic representations, features do not live in orthogonal isolation. Under the <em>Toy Models of Superposition</em> framework, a $d$-dimensional residual stream packs $M \gg d$ nearly-orthogonal conceptual directions $\{v_k\}_{k=1}^M$ using almost-orthogonal arrangements:
-        </p>
-
-        <div class="math-eq-row">
-            $$v_k \cdot v_m = \epsilon_{km} \neq 0 \quad (\forall k \neq m)$$
-            <span class="math-eq-number">(2)</span>
-        </div>
-
-        <p>
-            When an intervention vector $\Delta x_{\text{pos}}$ amplifies trait direction $v_k$, it unavoidably projects non-zero inner products onto hundreds of unrelated feature directions $v_m$. In a standard non-linear transformer layer, downstream MLP blocks pass these collateral projections through GeLU or SwiGLU gates, blowing up the background logit distribution and driving the model off the natural data manifold.
-        </p>
-
-        <div class="page-running-footer">
-            <span>Ghost in the Residual Stream</span>
-            <span>Page 1 of 4</span>
-        </div>
-    </article>
-
-    <!-- ================= PAGE 2 ================= -->
-    <article class="pdf-page" id="page-2">
-        <div class="page-running-header">
-            <span>The Geometric Cancellation Mechanism</span>
-            <span>Section 3 &bull; Norm Ablation</span>
-        </div>
-
-        <h2 class="sec-heading"><span class="num">3</span> The Geometric Mechanism: Why Negative Coordinates Cancel Drift</h2>
-        <p>
-            Physical coordinate steering solves this problem not by searching for higher-dimensional projections, but by constructing a <strong>sparse signed dipole</strong> directly in the model's native coordinate space. By pairing positive activations with counter-balancing negative coordinates, the collateral cross-talk is destructively interfered before it reaches the next MLP layer:
-        </p>
-
-        <div class="math-eq-row">
-            $$\Delta x_{\text{balanced}} = \alpha \left(\sum_{i \in \mathcal{I}^+} w_i e_i - \sum_{j \in \mathcal{I}^-} w_j e_j\right)$$
-            <span class="math-eq-number">(3)</span>
-        </div>
-
-        <!-- Clean SVG Figure -->
-        <div class="figure-block">
-            <svg viewBox="0 0 760 270" width="100%" height="250" xmlns="http://www.w3.org/2000/svg" style="background: #fafafa; border-radius: 4px;">
-                <defs>
-                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 8 3, 0 6" fill="#1e293b" />
-                    </marker>
-                    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 8 3, 0 6" fill="#059669" />
-                    </marker>
-                    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 8 3, 0 6" fill="#dc2626" />
-                    </marker>
-                    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 8 3, 0 6" fill="#2563eb" />
-                    </marker>
-                </defs>
-
-                <!-- Natural Manifold Curve -->
-                <path d="M 60 210 Q 380 150 700 210" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,4" />
-                <text x="70" y="235" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="600">NATURAL DATA MANIFOLD (Stable Text Generation)</text>
-
-                <!-- Baseline Point -->
-                <circle cx="180" cy="180" r="5" fill="#0f172a" />
-                <text x="170" y="165" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#0f172a">x_base</text>
-
-                <!-- Positive Only Vector (Off Manifold) -->
-                <line x1="180" y1="180" x2="310" y2="55" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow-red)" />
-                <circle cx="310" cy="55" r="5" fill="#dc2626" />
-                <text x="325" y="60" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#dc2626">x_base + Δx_pos (Off-Manifold: Persona Collapse)</text>
-
-                <!-- Negative Counter-Vector -->
-                <line x1="310" y1="55" x2="355" y2="175" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-blue)" />
-                <text x="345" y="115" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#2563eb">- Δx_neg (Cancellation Vector)</text>
-
-                <!-- Resulting Balanced Vector (Stays on Manifold) -->
-                <line x1="180" y1="180" x2="355" y2="175" stroke="#059669" stroke-width="3" marker-end="url(#arrow-green)" />
-                <circle cx="355" cy="175" r="5" fill="#059669" />
-                <text x="370" y="180" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#059669">x_balanced (On-Manifold: Fluent Trait Shift)</text>
-            </svg>
-            <div class="figure-caption">
-                <strong>Figure 1 &bull; Mechanistic Vector Cancellation:</strong> Positive-only steering pushes the hidden state into low-probability representation space, triggering collapse. Adding balanced negative coordinates applies an in-register restorative force, preserving the natural linguistic manifold.
+        <div class="comparison-card card-good">
+            <div class="card-label card-label-good">Balanced Coordinate Steering (Preserved)</div>
+            <div class="card-quote">
+                "Q: What is the capital of France?<br>
+                A: The capital of France is Paris. It is widely recognized as a major center of European culture, commerce, and diplomacy."
             </div>
         </div>
+    </div>
 
-        <h2 class="sec-heading"><span class="num">4</span> Controlled Norm Ablation across 32 Conditions</h2>
-        <p>
-            To prove that linguistic stability is governed by coordinate signs rather than vector magnitude, we conducted an exhaustive norm ablation across 32 distinct configurations on Gemma-2-2B. We tested against matched-norm isotropic controls, symmetric physical coordinates, dense autoencoder steering, and frontier baselines across 100 neutral evaluation probes.
-        </p>
+    <!-- Section 2 -->
+    <h2 class="section-heading"><span class="sec-num">2</span> Superposition &amp; Collateral Activation Drift</h2>
+    <p>
+        Why does positive steering break the model? The answer lies in how neural networks compress knowledge. Under the <em>Toy Models of Superposition</em> framework, a $d$-dimensional residual stream represents $M \gg d$ nearly-orthogonal conceptual directions $\{v_k\}_{k=1}^M$:
+    </p>
 
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Intervention Method</th>
-                        <th>Mean L2 Norm</th>
-                        <th>Rel Loss</th>
-                        <th>Probe Collapse Rate (95% CI)</th>
-                        <th>Fluency Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Unsteered Baseline</td>
-                        <td>0.00</td>
-                        <td>1.98</td>
-                        <td>0.0% [0.0%, 3.7%]</td>
-                        <td>Normal (Control)</td>
-                    </tr>
-                    <tr class="danger-row">
-                        <td>Positive-Only Physical (α=30)</td>
-                        <td>4.46</td>
-                        <td>4.12</td>
-                        <td>6.0% [2.8%, 12.5%]</td>
-                        <td>Degraded (Persona Loops)</td>
-                    </tr>
-                    <tr class="highlight-row">
-                        <td>Balanced Signs Physical (α=30)</td>
-                        <td>5.67</td>
-                        <td>2.00</td>
-                        <td>0.0% [0.0%, 3.7%]</td>
-                        <td>Pristine (No Collapse)</td>
-                    </tr>
-                    <tr>
-                        <td>Matched-Norm Random Direction</td>
-                        <td>5.67</td>
-                        <td>2.04</td>
-                        <td>0.0% [0.0%, 3.7%]</td>
-                        <td>Fluent (No Trait Shift)</td>
-                    </tr>
-                    <tr>
-                        <td>Symmetric Physical (α=30)</td>
-                        <td>5.67</td>
-                        <td>2.00</td>
-                        <td>0.0% [0.0%, 3.7%]</td>
-                        <td>Fluent (Zero Collapse)</td>
-                    </tr>
-                    <tr class="danger-row">
-                        <td>Dense SAE Steering (α=10)</td>
-                        <td>7.81</td>
-                        <td>5.89</td>
-                        <td>28.0% [20.0%, 37.5%]</td>
-                        <td>Catastrophic Collapse</td>
-                    </tr>
-                    <tr>
-                        <td>SAE-Targeted Steering (SAE-TS)</td>
-                        <td>4.92</td>
-                        <td>2.84</td>
-                        <td>4.0% [1.6%, 9.8%]</td>
-                        <td>Mild Drift</td>
-                    </tr>
-                    <tr>
-                        <td>In-Context Prompting</td>
-                        <td>—</td>
-                        <td>2.02</td>
-                        <td>0.0% [0.0%, 3.7%]</td>
-                        <td>100.0% Steering Ceiling</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="table-caption">
-                <strong>Table 1 &bull; Empirical Norm Ablation:</strong> Balanced physical steering achieves $0.0\%$ collapse at an $L_2$ norm of $5.67$, outperforming dense SAE steering ($28.0\%$ collapse) and positive-only physical steering ($6.0\%$ collapse).
-            </div>
+    <div class="math-block">
+        $$v_k \cdot v_m = \epsilon_{km} \neq 0 \quad (\forall k \neq m)$$
+        <span class="math-number">(2)</span>
+    </div>
+
+    <p>
+        Because features are not completely orthogonal, injecting energy along $v_k$ unavoidable leaks into hundreds of unrelated directions $v_m$. In non-linear transformer layers, these collateral projections are amplified by GeLU/SwiGLU activation functions, rapidly driving the hidden state off the natural data manifold into low-probability output distributions.
+    </p>
+
+    <!-- Section 3 -->
+    <h2 class="section-heading" id="mechanism"><span class="sec-num">3</span> The Geometric Mechanism: Cancelling Drift with Coordinate Signs</h2>
+    <p>
+        Physical coordinate steering solves this problem not by increasing dimensionality, but by exploiting coordinate signs. By injecting a <strong>sparse signed dipole</strong> directly into physical weight coordinates, negative activations destructively cancel out the collateral drift:
+    </p>
+
+    <div class="math-block">
+        $$\Delta x_{\text{balanced}} = \alpha \left(\sum_{i \in \mathcal{I}^+} w_i e_i - \sum_{j \in \mathcal{I}^-} w_j e_j\right)$$
+        <span class="math-number">(3)</span>
+    </div>
+
+    <div class="figure-wrap">
+        <svg viewBox="0 0 760 270" width="100%" height="250" xmlns="http://www.w3.org/2000/svg" style="background: #fafafa; border-radius: 4px;">
+            <defs>
+                <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#1e293b" />
+                </marker>
+                <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#059669" />
+                </marker>
+                <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#dc2626" />
+                </marker>
+                <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#2563eb" />
+                </marker>
+            </defs>
+
+            <!-- Manifold Curve -->
+            <path d="M 60 210 Q 380 150 700 210" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,4" />
+            <text x="70" y="235" font-family="Inter, sans-serif" font-size="12" fill="#64748b" font-weight="600">NATURAL DATA MANIFOLD (Coherent Generations)</text>
+
+            <!-- Baseline Vector -->
+            <circle cx="180" cy="180" r="5" fill="#0f172a" />
+            <text x="170" y="165" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#0f172a">x_base</text>
+
+            <!-- Positive Steering Vector -->
+            <line x1="180" y1="180" x2="310" y2="55" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow-red)" />
+            <circle cx="310" cy="55" r="5" fill="#dc2626" />
+            <text x="325" y="60" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#dc2626">x_base + Δx_pos (Off-Manifold: Collapse)</text>
+
+            <!-- Negative Cancelling Vector -->
+            <line x1="310" y1="55" x2="355" y2="175" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-blue)" />
+            <text x="345" y="115" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#2563eb">- Δx_neg (Drift Cancellation)</text>
+
+            <!-- Balanced Result Vector -->
+            <line x1="180" y1="180" x2="355" y2="175" stroke="#059669" stroke-width="3" marker-end="url(#arrow-green)" />
+            <circle cx="355" cy="175" r="5" fill="#059669" />
+            <text x="370" y="180" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#059669">x_balanced (On-Manifold: Fluent Trait Shift)</text>
+        </svg>
+        <div class="figure-caption">
+            <strong>Figure 1 &bull; Vector Cancellation Mechanics:</strong> Positive-only steering shoots the activation off the natural data manifold. Pairing positive coordinates with balanced negative coordinates exerts a restorative force that cancels collateral projections.
         </div>
+    </div>
 
-        <div class="page-running-footer">
-            <span>Ghost in the Residual Stream</span>
-            <span>Page 2 of 4</span>
+    <!-- Section 4 -->
+    <h2 class="section-heading" id="ablation"><span class="sec-num">4</span> Controlled Norm Ablation across 32 Conditions</h2>
+    <p>
+        Is linguistic stability truly governed by coordinate signs, or is it merely an artifact of intervention magnitude ($L_2$ norm)? To settle this question, we ran a controlled norm ablation across 32 distinct intervention conditions on Gemma-2-2B, measuring persona collapse rates across 100 neutral probes alongside standardized perplexity.
+    </p>
+
+    <div class="table-wrap">
+        <table class="paper-table">
+            <thead>
+                <tr>
+                    <th>Intervention Method</th>
+                    <th>Mean L2 Norm</th>
+                    <th>Rel Loss</th>
+                    <th>Probe Collapse Rate (95% CI)</th>
+                    <th>Fluency Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Unsteered Baseline</td>
+                    <td>0.00</td>
+                    <td>1.98</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Control Baseline</td>
+                </tr>
+                <tr class="danger-row">
+                    <td>Positive-Only Physical (α=30)</td>
+                    <td>4.46</td>
+                    <td>4.12</td>
+                    <td>6.0% [2.8%, 12.5%]</td>
+                    <td>Degraded (Persona Loops)</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Balanced Signs Physical (α=30)</td>
+                    <td>5.67</td>
+                    <td>2.00</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Pristine (Zero Collapse)</td>
+                </tr>
+                <tr>
+                    <td>Matched-Norm Random Direction</td>
+                    <td>5.67</td>
+                    <td>2.04</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Fluent (No Trait Shift)</td>
+                </tr>
+                <tr>
+                    <td>Symmetric Physical (α=30)</td>
+                    <td>5.67</td>
+                    <td>2.00</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>Fluent (Zero Collapse)</td>
+                </tr>
+                <tr class="danger-row">
+                    <td>Dense SAE Steering (α=10)</td>
+                    <td>7.81</td>
+                    <td>5.89</td>
+                    <td>28.0% [20.0%, 37.5%]</td>
+                    <td>Catastrophic Collapse</td>
+                </tr>
+                <tr>
+                    <td>SAE-Targeted Steering (SAE-TS)</td>
+                    <td>4.92</td>
+                    <td>2.84</td>
+                    <td>4.0% [1.6%, 9.8%]</td>
+                    <td>Mild Drift</td>
+                </tr>
+                <tr>
+                    <td>In-Context Prompting</td>
+                    <td>—</td>
+                    <td>2.02</td>
+                    <td>0.0% [0.0%, 3.7%]</td>
+                    <td>100.0% Steering Ceiling</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="table-caption">
+            <strong>Table 1 &bull; Empirical Norm Ablation:</strong> Balanced physical steering achieves $0.0\%$ collapse even at an $L_2$ norm of $5.67$, whereas dense SAE steering collapses at $28.0\%$ and positive-only physical collapses at $6.0\%$.
         </div>
-    </article>
+    </div>
 
-    <!-- ================= PAGE 3 ================= -->
-    <article class="pdf-page" id="page-3">
-        <div class="page-running-header">
-            <span>SAE Pitfalls &bull; Code Implementation</span>
-            <span>Section 5 &bull; Section 6</span>
-        </div>
+    <!-- Section 5 -->
+    <h2 class="section-heading"><span class="sec-num">5</span> Why Sparse Autoencoders (SAEs) Fail Under Direct Steering</h2>
+    <p>
+        Sparse Autoencoders are widely heralded as the definitive tool for interpreting language models. By learning an overcomplete basis, SAEs isolate monosemantic latent directions. However, using SAE decoder directions directly for behavioral steering creates two severe failure modes:
+    </p>
 
-        <h2 class="sec-heading"><span class="num">5</span> Why Dense Sparse Autoencoders Crash and Burn</h2>
-        <p>
-            Sparse Autoencoders (SAEs) are the darling of current interpretability research. By projecting the residual stream into an overcomplete dictionary, SAEs isolate monosemantic latent features. But using SAE decoders directly for behavioral steering creates three severe failure modes:
-        </p>
+    <p>
+        <strong>1. Non-Zero Reconstruction Error:</strong> Autoencoders are lossy compressors ($L_{\text{recon}} > 0$). When a steering delta is transformed through the decoder, residual reconstruction noise spreads across all residual coordinates simultaneously.
+    </p>
+    <p>
+        <strong>2. Dense Background Bleed:</strong> Even when only a single latent feature is amplified, the decoder projection matrix $W_{\text{dec}} \in \mathbb{R}^{d_{\text{sae}} \times d_{\text{model}}}$ activates every coordinate in the residual stream. On Gemma-2-2B, this dense bleed raises relative loss from $1.98$ to $5.89$ and triggers a devastating $28.0\%$ persona collapse rate.
+    </p>
 
-        <p>
-            <strong>1. The Reconstruction Error Penalty:</strong> SAE decoders do not achieve zero reconstruction error ($L_{\text{recon}} > 0$). When you steer in latent space and reconstruct, the residual error acts as a dense high-frequency noise injection into every single activation coordinate.
-        </p>
-        <p>
-            <strong>2. Dense Background Bleed:</strong> Even when a single latent feature is activated, the decoder weight matrix $W_{\text{dec}} \in \mathbb{R}^{d_{\text{sae}} \times d_{\text{model}}}$ spreads energy across all $d_{\text{model}}$ coordinates. In Gemma-2-2B, this dense bleed raises the cross-entropy loss from $1.98$ to $5.89$ and triggers a staggering $28.0\%$ persona collapse rate.
-        </p>
+    <!-- Section 6 -->
+    <h2 class="section-heading" id="code"><span class="sec-num">6</span> Inner-Loop Implementation: Sub-Millisecond Register Hooks</h2>
+    <p>
+        Physical coordinate steering does not expand the key-value cache or require token overhead. It executes in PyTorch register memory as an in-place tensor hook during the autoregressive forward pass:
+    </p>
 
-        <h2 class="sec-heading"><span class="num">6</span> Sub-Millisecond In-Register Forward Hook</h2>
-        <p>
-            Unlike prompt tuning or fine-tuning, physical coordinate steering requires zero key-value cache memory and introduces no noticeable latency. It executes directly in GPU register memory as an in-place tensor addition during the model's forward pass:
-        </p>
-
-        <div class="code-card">
-            <div class="code-card-header">PyTorch Native Forward Hook &bull; Zero Cache Overhead</div>
-            <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
+    <div class="code-container">
+        <div class="code-header">PyTorch In-Register Forward Hook &bull; Zero Prompt Overhead</div>
+        <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
     """
     Constructs an in-register forward hook injecting balanced physical coordinates
-    into the active token slice with zero prompt overhead and sub-millisecond execution.
+    into the active token slice with zero prompt tokens and sub-millisecond overhead.
     """
     def hook_fn(module, input, output):
         # hidden_states: [batch_size, seq_len, d_model]
         hidden_states = output[0] if isinstance(output, tuple) else output
         device, dtype = hidden_states.device, hidden_states.dtype
 
-        # Build sparse delta vector directly in GPU register space
+        # Build sparse balanced delta directly in GPU register space
         delta = torch.zeros(hidden_states.shape[-1], device=device, dtype=dtype)
         for idx, w in zip(pos_indices, pos_weights):
             delta[idx] += alpha * w
         for idx, w in zip(neg_indices, neg_weights):
-            delta[idx] += alpha * w  # Negative coordinate signs cancel collateral drift
+            delta[idx] += alpha * w  # Negative coordinates cancel collateral drift
 
-        # Inject in-place exclusively at the active autoregressive token:
+        # Inject in-place exclusively on the active generation token:
         hidden_states[:, -1, :] += delta
         return (hidden_states,) if isinstance(output, tuple) else hidden_states
 
     return hook_fn</code></pre>
-        </div>
+    </div>
 
-        <h2 class="sec-heading"><span class="num">7</span> Safety &amp; The Refusal Subspace Audit</h2>
-        <p>
-            Any representation steering vector can inadvertently undermine alignment guardrails if it projects onto the model's latent refusal direction $v_{\text{ref}}$. Research indicates that unconstrained steering vectors can increase Attack Success Rates (ASR) by up to $57\%$ on standard jailbreak benchmarks.
-        </p>
+    <!-- Section 7 -->
+    <h2 class="section-heading" id="safety"><span class="sec-num">7</span> Safety Audit &amp; Refusal Subspace Orthogonalization</h2>
+    <p>
+        A critical consideration in representation steering is model alignment. Recent safety evaluations show that representation steering vectors often overlap with the model's latent refusal direction $v_{\text{ref}}$, altering Attack Success Rates (ASR) by up to $57\%$ on jailbreak benchmarks.
+    </p>
 
-        <p>
-            To prevent jailbreak leakage, physical coordinate vectors must be deflated against the refusal subspace before deployment:
-        </p>
+    <p>
+        Before deploying physical coordinate steering, the delta vector must be deflated against the refusal subspace:
+    </p>
 
-        <div class="math-eq-row">
-            $$\Delta x_{\text{safe}} = \Delta x - \left(\Delta x \cdot \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}\right) \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}$$
-            <span class="math-eq-number">(4)</span>
-        </div>
+    <div class="math-block">
+        $$\Delta x_{\text{safe}} = \Delta x - \left(\Delta x \cdot \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}\right) \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}$$
+        <span class="math-number">(4)</span>
+    </div>
 
-        <p>
-            In our testing pipeline, cosine alignment checks ensure that behavioral steering never unintentionally bypasses model safeguards.
-        </p>
+    <p>
+        In our evaluation pipeline, the <code>weight_space.evaluation.safety</code> module audits cosine alignment and verifies that behavioral shifts do not inadvertently degrade safety boundaries.
+    </p>
 
-        <div class="page-running-footer">
-            <span>Ghost in the Residual Stream</span>
-            <span>Page 3 of 4</span>
-        </div>
-    </article>
+    <!-- Section 8 -->
+    <h2 class="section-heading"><span class="sec-num">8</span> The Frontier: Why In-Context Prompting Still Holds the Ceiling</h2>
+    <p>
+        While balanced physical steering vastly outperforms dense SAE steering and positive-only steering, it does not beat in-context prompting. On our Agreeableness test battery, in-context prompting achieved a $100.0\%$ steering score, whereas physical coordinate steering reached an effective steering delta of $57.1\%$.
+    </p>
 
-    <!-- ================= PAGE 4 ================= -->
-    <article class="pdf-page" id="page-4">
-        <div class="page-running-header">
-            <span>Future Roadmap &bull; Key Takeaways</span>
-            <span>Section 8 &bull; Conclusion</span>
-        </div>
+    <p>
+        The reason is architectural: prompts modulate attention dynamics across every layer and generation step dynamically. In contrast, single-layer coordinate injection applies a static linear shift.
+    </p>
 
-        <h2 class="sec-heading"><span class="num">8</span> The Frontier: Why Prompting Still Holds the Ceiling</h2>
-        <p>
-            While balanced coordinate steering dramatically outperforms dense SAE steering and positive-only physical steering, it does not beat in-context prompting on deep multi-turn reasoning tasks. In-context prompting achieved a $100.0\%$ steering score on our Agreeableness battery, whereas balanced coordinate steering reached an effective steering delta of $57.1\%$.
-        </p>
-
-        <p>
-            The reason is architectural: in-context prompts dynamically modulate attention matrices across every single transformer layer at every token generation step. In contrast, static single-layer coordinate injection applies a uniform shift.
-        </p>
-
-        <div class="hook-card" style="border-left-color: #10b981;">
-            <strong>The Next Frontier:</strong> To bridge the gap with in-context prompting without sacrificing zero-token efficiency, two architectural extensions are essential:
-            <ol style="margin: 12px 0 0 20px; font-size: 16.5px;">
-                <li><strong>Dynamic Token Decay:</strong> Decaying the steering coefficient $\alpha_t = \alpha_0 \cdot \gamma^t$ across generation steps to guide initial persona establishment without perturbing long-horizon reasoning.</li>
-                <li><strong>Multi-Layer Circuit Routing:</strong> Injecting coordinated sparse dipoles across intermediate layers rather than forcing a single layer to bear all behavioral modulation.</li>
-            </ol>
-        </div>
-
-        <h2 class="sec-heading"><span class="num">9</span> Summary of Core Insights</h2>
-        <ul class="notes-list">
-            <li><strong>Signs Trump Magnitude:</strong> Persona collapse is caused by directional cross-talk in superposition space, not by the raw $L_2$ norm of the intervention.</li>
-            <li><strong>Dense SAEs Introduce Heavy Noise:</strong> Reconstruction error and dense projection matrices cause autoencoder steering to severely degrade language fluency.</li>
-            <li><strong>Sparse Dipoles Restore Stability:</strong> Negative coordinate pairing destructively interferes with collateral activations, keeping generations on the natural data manifold.</li>
-            <li><strong>Zero-Prompt Footprint:</strong> Physical coordinate hooks run inside existing PyTorch registers without altering the KV cache or slowing inference.</li>
+    <div class="note-box">
+        <strong>The Next Frontier:</strong> To approach the efficacy of in-context prompting while maintaining zero prompt token overhead, future research must incorporate:
+        <ul style="margin: 10px 0 0 20px; font-size: 17.5px;">
+            <li><strong>Dynamic Token Decay:</strong> Decaying the injection coefficient $\alpha_t = \alpha_0 \cdot \gamma^t$ across generation steps to guide persona establishment without disrupting long-range reasoning.</li>
+            <li><strong>Multi-Layer Circuit Routing:</strong> Distributing balanced sparse dipoles across intermediate layers rather than relying on a single injection point.</li>
         </ul>
+    </div>
 
-        <h2 class="sec-heading" style="margin-top: 36px;"><span class="num">10</span> Key References &amp; Prior Art</h2>
-        <ul class="notes-list">
-            <li><strong>Bayat et al. (2025):</strong> <em>Steering Large Language Model Activations in Sparse Spaces</em>. Explored coordinate-level activation addition in residual streams.</li>
-            <li><strong>Chalnev et al. (2024):</strong> <em>Improving Steering Vectors by Targeting Sparse Autoencoder Features</em>. Demonstrated targeted feature isolation.</li>
-            <li><strong>Elhage et al. (2022):</strong> <em>Toy Models of Superposition</em>. Foundational analysis of almost-orthogonal feature packing in constrained dimensions.</li>
-            <li><strong>He et al. (2025):</strong> <em>SAE-SSV: Supervised Steering in Sparse Representation Spaces</em>. EMNLP 2025 study on reliable sparse subspace control.</li>
-            <li><strong>Korznikov et al. (2025):</strong> <em>The Rogue Scalpel: Activation Steering Compromises LLM Safety</em>. Audited unintended jailbreak leakage from activation interventions.</li>
-        </ul>
+    <!-- Section 9 -->
+    <h2 class="section-heading"><span class="sec-num">9</span> Summary of Core Insights</h2>
+    <ul class="ref-list" style="margin-bottom: 36px;">
+        <li><span class="ref-num">&bull;</span> <strong>Coordinate Signs Matter More Than Magnitude:</strong> Persona collapse is driven by directional cross-talk in superposition space, not by vector $L_2$ norm.</li>
+        <li><span class="ref-num">&bull;</span> <strong>Dense SAE Bleed Is Damaging:</strong> Decoder reconstruction noise and dense matrix projections severely degrade model fluency.</li>
+        <li><span class="ref-num">&bull;</span> <strong>Signed Dipoles Cancel Collateral Activation:</strong> Pairing positive coordinates with negative counterparts keeps representations on the natural data manifold.</li>
+        <li><span class="ref-num">&bull;</span> <strong>Zero Prompt Overhead:</strong> In-register PyTorch hooks run with sub-millisecond execution and zero KV cache memory usage.</li>
+    </ul>
 
-        <div class="page-running-footer">
-            <span>Ghost in the Residual Stream</span>
-            <span>Page 4 of 4 &bull; End of Document</span>
-        </div>
-    </article>
+    <!-- References -->
+    <h2 class="section-heading"><span class="sec-num">10</span> Key References</h2>
+    <ul class="ref-list">
+        <li><span class="ref-num">[1]</span> <strong>Bayat et al. (2025):</strong> <em>Steering Large Language Model Activations in Sparse Spaces</em>. arXiv:2502.01632.</li>
+        <li><span class="ref-num">[2]</span> <strong>Chalnev et al. (2024):</strong> <em>Improving Steering Vectors by Targeting Sparse Autoencoder Features</em>. arXiv:2411.02195.</li>
+        <li><span class="ref-num">[3]</span> <strong>Elhage et al. (2022):</strong> <em>Toy Models of Superposition</em>. Transformer Circuits Thread.</li>
+        <li><span class="ref-num">[4]</span> <strong>He et al. (2025):</strong> <em>SAE-SSV: Supervised Steering in Sparse Representation Spaces</em>. EMNLP 2025.</li>
+        <li><span class="ref-num">[5]</span> <strong>Korznikov et al. (2025):</strong> <em>The Rogue Scalpel: Activation Steering Compromises LLM Safety</em>. arXiv:2509.18244.</li>
+        <li><span class="ref-num">[6]</span> <strong>Rimsky et al. (2023):</strong> <em>Steering Llama 2 via Contrastive Activation Addition</em>. arXiv:2312.06681.</li>
+    </ul>
+
+    <footer class="article-footer">
+        <div>&copy; 2026 Kartik Sirohi &bull; Weight Space Research</div>
+        <div><a href="https://github.com/sirohikartik/weight_space" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">View on GitHub</a></div>
+    </footer>
 
 </main>
 
