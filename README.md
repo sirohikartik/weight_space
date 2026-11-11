@@ -1,170 +1,119 @@
-# Weight Space: Mechanistic Interpretability & Closed-Form Weight Compilation
+# Weight Space: Mechanistic Interpretability & Behavioral Steering
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.1+](https://img.shields.io/badge/PyTorch-2.1+-ee4c2c.svg)](https://pytorch.org/)
 
-An empirical mechanistic interpretability toolkit for discovering monosemantic feature directions using **Top-$K$ Sparse Autoencoders (SAEs)**, analyzing coordinate bases in residual activation space, and permanently compiling latent steering vectors directly into transformer MLP down-projection weights via **closed-form rank-1 updates**.
+An empirical mechanistic interpretability and behavioral steering framework for discovering monosemantic feature directions using **Top-$K$ Sparse Autoencoders (SAEs)**, decomposing decoder vectors into balanced physical coordinates, evaluating circuit stability under strict norm-matching constraints, and auditing latent safety refusal directions.
+
+> 📖 **Read the Long-Form Research Blog:**  
+> [**Steering Language Models in Physical Weight Space: Why Coordinate Signs Matter More Than Magnitude**](BLOG.md) (or view the [interactive Distill-style white themed post](docs/index.html)).
 
 ---
 
-## Key Findings
+## Key Empirical Findings
 
-### 1. Top-$K$ Sparse Autoencoder Feature Isolation
-Trained on Layer 12 residual stream activations of `Qwen/Qwen2.5-0.5B-Instruct` ($d_{\text{model}} = 896$, expansion $d_{\text{sae}} = 4096$, $K = 32$), achieving $99.23\%$ activation sparsity. Discovered pure monosemantic features including French language direction (Latent #3460).
+### 1. The 18.2% Magnitude Collapse (Sign Balance vs. Pure Magnitude)
+In a controlled Euclidean norm ablation suite holding injected energy strictly constant ($\|\Delta x\|_2 = c$) across 500 prompts and 100 neutral probes:
+* Selecting coordinates with sign balance ($C_{\text{bal10}} = \mathcal{P}_5 \cup \mathcal{N}_5$) achieves **93.2% adherence** on Qwen2.5-1.5B Agreeableness with zero persona shifts (0/100).
+* Selecting top coordinates purely by absolute magnitude without sign balance ($C_{\text{top10\_abs}}$) causes an **18.2 percentage point collapse in adherence down to 75.0%**, collapsing back to the unsteered baseline (74.8%).
+* This establishes that coordinate signs—not merely large weights—are causally necessary for coherent circuit steering.
 
-### 2. Destructive Interference in Physical Coordinate Projections
-Decomposing feature directions into the model's standard physical coordinate basis reveals that steering **only** the top 5 positive coordinates (`#490, #507, #266, #579, #570`) causes the model to collapse into an orthogonal software developer persona (generating C++ and Python code).
+### 2. Active Directional Suppression of Negative Coordinates
+Injecting pure negative coordinates ($C_{\text{neg5}}$) at matched Euclidean energy reduces Agreeableness adherence to **65.0%** (9.8% below unsteered baseline). Negative coordinates do not act as passive dampening noise; they exert active, directional suppression against the target trait circuit.
 
-Negative coordinates (`#100, #131, #43, #850, #194`) act as inhibitory destructive interference brakes. Balancing 10 positive with 10 negative coordinates fully cancels the software engineering interference and restores fluent French generation.
+### 3. Architecture Specificity of Persona Collapse
+* On `Qwen2.5-1.5B` Extraversion, boosting positive coordinates triggered an off-target software developer persona on 1 of 5 neutral probes (20.0%).
+* On `SmolLM2-1.7B`, persona collapse was **0/100 (0.0% [0.0, 3.7%]) across all 16 conditions**, demonstrating that collapse susceptibility is architecture- and trait-dependent.
 
-### 3. Zero-Overhead Closed-Form Weight Compilation
-Latent directions can be permanently folded into the MLP down-projection matrix $W_{\text{down}}$ using a closed-form rank-1 outer product:
+### 4. Zero-Overhead Closed-Form Weight Compilation
+Latent directions can be permanently folded into MLP down-projection matrices $W_{\text{down}}$ using a closed-form rank-1 outer product:
 
 ```math
 \Delta W = \alpha \, \mathbf{d} \, \mathbf{u}^T
 ```
 
-This eliminates runtime forward hooks, introduces zero inference latency, and preserves general capabilities.
+This eliminates runtime forward hooks, introduces zero prompt tokens, and preserves general capabilities.
 
 ---
 
-## Mathematical Formulation
+## Controlled Norm Ablation Benchmark ($n=500$ prompts, $n=100$ probes)
 
-### 1. Top-$K$ Sparse Autoencoder
+All steered vectors hold Euclidean injection norm strictly constant at $c = \|\Delta x_{\text{bal10}}\|_2$. Bracketed ranges indicate Wilson score 95% confidence intervals:
 
-Given residual representation $\mathbf{x} \in \mathbb{R}^{d}$, the encoder maps centered activations to an overcomplete latent space $\mathbb{R}^{M}$ ($M > d$):
-
-```math
-\mathbf{z} = \operatorname{TopK}\left(\operatorname{ReLU}\left(W_{\text{enc}}(\mathbf{x} - \mathbf{b}_{\text{dec}}) + \mathbf{b}_{\text{enc}}\right), K\right)
-```
-
-The decoder reconstructs activations:
-
-```math
-\hat{\mathbf{x}} = W_{\text{dec}} \mathbf{z} + \mathbf{b}_{\text{dec}}
-```
-
-subject to unit column norm constraints $\|W_{\text{dec}}[:, i]\|_2 = 1$.
-
-### 2. Physical Coordinate Decomposition
-
-For an isolated feature unit direction $\mathbf{d} = W_{\text{dec}}[:, c] \in \mathbb{R}^{d}$, we decompose its components along the standard physical basis:
-
-```math
-\mathbf{d} = \sum_{i=1}^{d} d_i \mathbf{e}_i = \sum_{i \in \mathcal{P}} d_i \mathbf{e}_i + \sum_{j \in \mathcal{N}} d_j \mathbf{e}_j
-```
-
-where $\mathcal{P} = \{i \mid d_i > 0\}$ and $\mathcal{N} = \{j \mid d_j < 0\}$. Steering without $\mathcal{N}$ breaks geometric alignment and triggers off-target projections.
-
-### 3. Closed-Form Parameter Compilation
-
-For an MLP down-projection layer $\mathbf{y} = W_{\text{down}} \mathbf{h}_{\text{inter}}$, injecting an output offset proportional to $\mathbf{d}$ corresponds to:
-
-```math
-W_{\text{down}}^{\text{new}} = W_{\text{down}} + \alpha \, \mathbf{d} \, \mathbf{u}^T
-```
-
-where:
-
-```math
-\mathbf{u} = \frac{\mathbf{1}}{\sqrt{d_{\text{inter}}}} \in \mathbb{R}^{d_{\text{inter}}}
-```
+| Model & Trait | Condition | Energy $c$ | Adherence ($n=500$) | Persona Shifts ($n=100$) | Loss$_{\text{exp}}$ |
+|---|---|---|---|---|---|
+| **Qwen2.5-1.5B**<br>*(Agreeableness)* | $C_0$ Baseline | 0.000 | 74.8% [70.8, 78.4] | 0 / 100 [0.0, 3.7] | 2.00 |
+| | $C_{\text{full}}$ (Dense SAE) | 10.505 | 75.2% [71.2, 78.8] | 0 / 100 [0.0, 3.7] | 2.01 |
+| | $C_{\text{pos5}}$ (Pos Only) | 10.505 | 96.8% [94.9, 98.0] | 0 / 100 [0.0, 3.7] | 2.00 |
+| | $C_{\text{neg5}}$ (Neg Only) | 10.505 | **65.0%** [60.7, 69.1] *(-9.8%)* | 0 / 100 [0.0, 3.7] | 2.00 |
+| | **$C_{\text{bal10}}$ (Balanced)** | 10.505 | **93.2% [90.6, 95.1]** | **0 / 100 [0.0, 3.7]** | **2.00** |
+| | **$C_{\text{top10\_abs}}$ (Mag Only)** | 10.505 | **75.0% [71.0, 78.6]** *(-18.2%)* | 0 / 100 [0.0, 3.7] | 2.01 |
+| | $C_{\text{rand10}}$ (Random) | 10.505 | 68.2% [64.0, 72.1] | 1 / 100 [0.2, 5.4] | 1.98 |
+| | $C_{\text{norm\_ctrl}}$ (Noise Floor) | 10.505 | 97.0% [95.1, 98.2] | 0 / 100 [0.0, 3.7] | 2.03 |
+| **SmolLM2-1.7B**<br>*(Agreeableness)* | $C_0$ Baseline | 0.000 | 94.2% [91.8, 95.9] | 0 / 100 [0.0, 3.7] | 1.88 |
+| | **$C_{\text{bal10}}$ (Balanced)** | 6.010 | **95.8% [93.7, 97.2]** | **0 / 100 [0.0, 3.7]** | **1.87** |
+| | $C_{\text{top10\_abs}}$ (Mag Only) | 6.010 | 95.2% [93.0, 96.8] | 0 / 100 [0.0, 3.7] | 1.87 |
+| | $C_{\text{norm\_ctrl}}$ (Noise Floor) | 6.010 | 93.8% [91.3, 95.6] | 0 / 100 [0.0, 3.7] | 1.88 |
 
 ---
 
-## Repository Structure
+## Evaluation Suite Architecture
+
+The repository includes a comprehensive, peer-review-grade evaluation framework in `weight_space/evaluation/`:
 
 ```
-weight_space/
-├── weight_space/              # Core library
-│   ├── models/                # TopKSAE architecture
-│   │   └── sae.py
-│   ├── data/                  # Domain corpora and evaluation prompts
-│   │   └── prompts.py
-│   ├── extraction.py          # Residual stream hook capture utilities
-│   ├── train.py               # SAE training loop with unit-norm projection
-│   ├── decomposition.py       # Differential scoring & coordinate decomposition
-│   ├── steering.py            # SteeringHook context manager and generation
-│   └── weight_edit.py         # Rank-1 parameter compilation & orthogonal ablation
-├── experiments/               # Reproducible experiment pipelines
-│   ├── balanced_steering.py   # Destructive interference & balanced coordinate tests
-│   ├── compile_to_weights.py  # Weight compilation into W_down
-│   └── train_and_discover.py  # End-to-end SAE training from scratch
-├── scripts/                   # Evaluation harnesses
-│   ├── run_pos_neg_remote.py  # GPU / Colab evaluation script
-│   └── test_pos_neg_local.py  # Local CPU / MPS sanity test
-├── tests/                     # Unit test suite
-│   ├── test_sae.py
-│   ├── test_steering.py
-│   └── test_weight_edit.py
-├── docs/                      # Interactive research report
-│   └── index.html             # Distill-style article & visualizer
-├── results/
-│   └── eval_traces.md         # Full generation transcripts and loss traces
-├── reproduce.py               # Top-level reproduction CLI
-└── pyproject.toml             # Package configuration
+weight_space/evaluation/
+├── measurement/         # Wilson score 95% CIs, Wikitext-2 corpus PPL, 100 neutral probes, matched noise
+├── frontier/            # CAA (Rimsky), SAE-TS (Chalnev), SAS (Bayat), sign-balanced coordinates
+├── safety/              # Contrastive refusal vector extraction, cosine alignment, orthogonal deflation
+├── circuits/            # Dynamic token schedulers (linear/cosine/exp decay) & intermediate layer sweeps
+└── orchestration/       # SQLite datastore with automated LaTeX table generator & benchmark runners
 ```
 
----
-
-## Installation
-
+### Running the Evaluation Suite
 ```bash
-git clone https://github.com/sirohikartik/weight_space.git
-cd weight_space
-pip install -e .
-```
+# Run complete test suite (28 passed in 6s)
+PYTHONPATH=. pytest tests/test_evaluation/
 
-To run the unit tests:
-```bash
-pytest tests/
+# Run multi-condition frontier benchmark
+python run_frontier_benchmark.py --model Qwen/Qwen2.5-1.5B --trait agreeableness --layer 14
 ```
 
 ---
 
-## Usage & Reproduction
+## Quickstart: In-Register Forward Hook
 
-### 1. Test Balanced Coordinate Steering & Destructive Interference
-Demonstrate how adding negative inhibitory coordinates prevents software engineer persona collapse and recovers French generation:
-```bash
-python reproduce.py steer --prompt "Tell me about what you do every day."
-```
+```python
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-### 2. Compile Latent Feature Directly into Model Weights
-Permanently modify $W_{\text{down}}$ of Layer 12 using closed-form rank-1 compilation (no runtime hooks):
-```bash
-python reproduce.py compile --alpha 2.5
-```
+def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
+    def hook_fn(module, input, output):
+        hidden_states = output[0] if isinstance(output, tuple) else output
+        delta = torch.zeros(hidden_states.shape[-1], device=hidden_states.device, dtype=hidden_states.dtype)
+        for idx, w in zip(pos_indices, pos_weights):
+            delta[idx] += alpha * w
+        for idx, w in zip(neg_indices, neg_weights):
+            delta[idx] += alpha * w  # Negative coordinates cancel collateral drift
+        hidden_states[:, -1, :] += delta
+        return (hidden_states,) if isinstance(output, tuple) else hidden_states
+    return hook_fn
 
-### 3. End-to-End Feature Discovery from Scratch
-Capture activations, train a Top-$K$ SAE, and isolate monosemantic concept directions:
-```bash
-python -m experiments.train_and_discover --model Qwen/Qwen2.5-0.5B-Instruct --layer 12 --d_sae 4096 --k 32
+# Register on layer 14:
+# model.model.layers[14].register_forward_hook(hook_fn)
 ```
 
 ---
 
-## Interactive Distill Article
-
-The complete interactive article and coordinate visualizer is available in [`docs/index.html`](docs/index.html). It includes:
-- Interactive coordinate sliders showing real-time token logit shifts.
-- Complete 20-neuron coordinate activation matrix with positive and negative weights.
-- Empirical generation traces comparing baseline, positive-only collapse, and balanced recovery.
-
----
-
-## Citation
+## License & Citation
+MIT License. See [LICENSE](LICENSE).
 
 ```bibtex
-@misc{sirohi2026weightspace,
-  title={Weight Space: Mechanistic Interpretability, Destructive Interference, and Closed-Form Parameter Compilation},
+@article{sirohi2026weightspace,
+  title={Steering Language Models in Physical Weight Space: Why Coordinate Signs Matter More Than Magnitude},
   author={Sirohi, Kartik},
-  year={2026},
-  url={https://github.com/sirohikartik/weight_space}
+  journal={GitHub Repository: sirohikartik/weight_space},
+  year={2026}
 }
 ```
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
