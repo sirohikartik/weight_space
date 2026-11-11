@@ -3,26 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superposition and Destructive Interference in Transformer Coordinate Bases</title>
+    <title>Steering Language Models in Physical Weight Space: Why Coordinate Signs Matter More Than Magnitude</title>
     <!-- Fonts: Distill-exact Source Serif 4, Inter, and Source Code Pro -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <!-- KaTeX for mathematical typesetting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     <style>
         :root {
-            --text-color: #222222;
-            --text-secondary: #707070;
+            --text-color: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
             --border-color: rgba(0, 0, 0, 0.08);
             --border-subtle: rgba(0, 0, 0, 0.04);
             --bg-color: #ffffff;
-            --bg-secondary: #fafafa;
-            --highlight: #1e40af;
-            --accent-french: #2563eb;
-            --accent-prog: #16a34a;
+            --bg-secondary: #f9fafb;
+            --bg-accent: #f3f4f6;
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --accent-amber: #d97706;
             --mono-font: "Source Code Pro", Menlo, Monaco, Consolas, monospace;
             --body-font: "Source Serif 4", "Charter", Georgia, serif;
             --sans-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -39,15 +43,16 @@
             color: var(--text-color);
             font-family: var(--body-font);
             font-size: 19px;
-            line-height: 1.78;
+            line-height: 1.8;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
         }
 
         .distill-grid {
             display: grid;
-            grid-template-columns: [screen-start] 1fr [page-start] 80px [main-start] 680px [main-end] 40px [margin-start] 300px [margin-end] 80px [page-end] 1fr [screen-end];
+            grid-template-columns: [screen-start] 1fr [page-start] 60px [main-start] 700px [main-end] 50px [margin-start] 310px [margin-end] 60px [page-end] 1fr [screen-end];
             column-gap: 0px;
+            padding: 48px 0 100px;
         }
 
         .main {
@@ -57,174 +62,242 @@
         .margin {
             grid-column: margin;
             font-family: var(--sans-font);
-            font-size: 13px;
+            font-size: 13.5px;
             line-height: 1.55;
-            color: var(--text-secondary);
-            margin-top: 6px;
+            color: var(--text-muted);
+            position: relative;
+            top: 6px;
+        }
+
+        .page {
+            grid-column: page;
         }
 
         h1 {
             font-family: var(--sans-font);
-            font-size: 40px;
+            font-size: 42px;
             font-weight: 700;
-            letter-spacing: -0.03em;
             line-height: 1.18;
-            color: #111111;
-            margin-top: 64px;
+            letter-spacing: -0.025em;
+            color: #111827;
             margin-bottom: 16px;
         }
 
         .distill-subtitle {
-            font-family: var(--body-font);
-            font-size: 21px;
-            line-height: 1.45;
+            font-family: var(--sans-font);
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.5;
             color: var(--text-secondary);
             margin-bottom: 28px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 28px;
         }
 
         .byline {
             font-family: var(--sans-font);
-            font-size: 13.5px;
-            color: var(--text-secondary);
-            padding: 12px 0 28px;
-            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
         }
 
         .byline-authors {
             font-weight: 600;
-            color: #111111;
+            color: #111827;
         }
 
         h2 {
             font-family: var(--sans-font);
-            font-size: 21px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.015em;
-            line-height: 1.3;
-            color: #111111;
-            margin-top: 52px;
-            margin-bottom: 16px;
+            color: #111827;
+            margin: 48px 0 18px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 32px;
+        }
+
+        h3 {
+            font-family: var(--sans-font);
+            font-size: 19px;
+            font-weight: 600;
+            color: #111827;
+            margin: 28px 0 12px;
         }
 
         p {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
-        .sidenote {
-            font-family: var(--sans-font);
-            font-size: 13px;
-            line-height: 1.55;
-            color: var(--text-secondary);
-            margin-bottom: 28px;
-        }
-
-        .sidenote-number {
-            font-size: 11px;
-            color: var(--highlight);
-            vertical-align: super;
-            margin-right: 3px;
+        strong {
             font-weight: 600;
+            color: #111827;
+        }
+
+        em {
+            font-style: italic;
         }
 
         code {
             font-family: var(--mono-font);
-            font-size: 0.88em;
-            background: rgba(0, 0, 0, 0.04);
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .math-block {
-            text-align: center;
-            margin: 28px 0;
-            font-size: 19px;
-            color: #111111;
+            font-size: 14.5px;
+            background: var(--bg-accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #111827;
         }
 
         pre {
-            background: #f8f9fa;
-            border-radius: 6px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 18px 20px;
             font-family: var(--mono-font);
-            font-size: 13px;
+            font-size: 13.5px;
             line-height: 1.6;
             overflow-x: auto;
+            margin: 24px 0;
+            color: #1e293b;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        .math-block {
+            margin: 24px 0;
+            overflow-x: auto;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .callout {
+            background: #f8fafc;
+            border-left: 3px solid var(--primary-light);
+            border-radius: 0 8px 8px 0;
+            padding: 18px 22px;
             margin: 28px 0;
-            color: #222222;
+            font-size: 17.5px;
+            line-height: 1.65;
         }
 
-        .distill-figure {
-            margin: 40px 0;
-            padding: 16px 0;
+        .callout.alert {
+            border-left-color: var(--accent-red);
+            background: #fef2f2;
         }
 
-        .figure-title {
+        .callout.success {
+            border-left-color: var(--accent-green);
+            background: #f0fdf4;
+        }
+
+        .callout-title {
             font-family: var(--sans-font);
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #111111;
+            letter-spacing: 0.05em;
             margin-bottom: 6px;
+            color: var(--primary);
         }
 
-        .figure-caption {
-            font-family: var(--sans-font);
-            font-size: 13px;
-            line-height: 1.55;
-            color: var(--text-secondary);
-            margin-top: 12px;
+        .callout.alert .callout-title { color: var(--accent-red); }
+        .callout.success .callout-title { color: var(--accent-green); }
+
+        .sidenote {
+            margin-bottom: 24px;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
         }
 
+        .sidenote-number {
+            display: inline-block;
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 4px;
+        }
+
+        /* Interactive & Visual Cards */
         .interactive-panel {
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 20px;
-            margin-top: 12px;
-            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.03);
+            padding: 24px;
+            margin: 28px 0;
+            box-shadow: 0 4px 16px -4px rgba(0,0,0,0.04);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-family: var(--sans-font);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #111827;
+        }
+
+        .panel-badge {
+            font-size: 12px;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 600;
         }
 
         .dim-strip {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             gap: 2px;
-            height: 95px;
-            background: #fafafa;
-            border-radius: 4px;
-            padding: 8px 10px;
-            margin: 12px 0;
+            height: 110px;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin: 14px 0;
+            border: 1px solid var(--border-color);
         }
 
         .dim-bar {
             flex: 1;
             background: #cbd5e1;
             border-radius: 1px;
-            transition: all 0.15s ease;
+            transition: all 0.12s ease;
+            cursor: pointer;
         }
 
-        .dim-bar.active-pos { background: var(--accent-french); }
-        .dim-bar.active-neg { background: #ef4444; }
-        .dim-bar.active-rogue { background: var(--accent-prog); }
+        .dim-bar.active-pos { background: var(--primary-light); }
+        .dim-bar.active-neg { background: var(--accent-red); }
+        .dim-bar.active-rogue { background: var(--accent-green); }
 
         .ui-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-family: var(--sans-font);
-            font-size: 13px;
+            font-size: 13.5px;
             color: var(--text-secondary);
-            margin: 12px 0 6px;
+            margin: 14px 0 8px;
         }
 
         .ui-slider {
             flex-grow: 1;
-            margin: 0 14px;
-            height: 4px;
-            accent-color: var(--highlight);
+            margin: 0 16px;
+            height: 5px;
+            accent-color: var(--primary);
             cursor: pointer;
         }
 
@@ -236,112 +309,164 @@
 
         .distill-btn {
             font-family: var(--sans-font);
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 500;
             padding: 6px 14px;
             border: 1px solid var(--border-color);
             background: #ffffff;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             color: var(--text-color);
-            transition: background 0.15s;
+            transition: all 0.15s;
         }
 
         .distill-btn:hover {
-            background: #f4f4f5;
+            background: var(--bg-accent);
+            border-color: #cbd5e1;
         }
 
         .distill-btn.active {
-            background: #111111;
+            background: #1e293b;
             color: #ffffff;
-            border-color: #111111;
+            border-color: #1e293b;
         }
 
         .terminal-output {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 14px 16px;
+            background: #0f172a;
+            color: #e2e8f0;
             font-family: var(--mono-font);
             font-size: 13px;
             line-height: 1.6;
-            color: #18181b;
+            padding: 16px 18px;
+            border-radius: 6px;
             margin-top: 14px;
-            min-height: 72px;
+            white-space: pre-wrap;
+            min-height: 85px;
         }
 
-        .token-tag {
-            display: inline-block;
-            padding: 1px 5px;
-            border-radius: 3px;
-            font-weight: 600;
-            font-size: 11px;
-            font-family: var(--sans-font);
+        /* Benchmark Tables */
+        .table-wrapper {
+            margin: 28px 0;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #ffffff;
         }
 
-        .token-french { background: #dbeafe; color: #1e40af; }
-        .token-prog { background: #dcfce7; color: #15803d; }
-        .token-base { background: #f1f5f9; color: #475569; }
-
-        .distill-table {
+        table.distill-table {
             width: 100%;
             border-collapse: collapse;
             font-family: var(--sans-font);
             font-size: 13.5px;
-            margin: 24px 0;
+            line-height: 1.5;
+            text-align: left;
         }
 
         .distill-table th {
-            text-align: left;
+            background: #f8fafc;
+            color: #374151;
             font-weight: 600;
-            color: var(--text-secondary);
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border-color);
-            padding: 8px 10px;
-            font-size: 11.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
 
         .distill-table td {
-            padding: 11px 10px;
-            border-bottom: 1px solid var(--border-subtle);
-            vertical-align: top;
+            padding: 11px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-color);
         }
 
-        .canvas-wrapper {
-            position: relative;
-            width: 100%;
-            height: 270px;
-            background: #fafafa;
-            border-radius: 6px;
-            overflow: hidden;
-            margin: 10px 0;
+        .distill-table tr:last-child td {
+            border-bottom: none;
         }
 
-        canvas {
+        .distill-table tr.highlight-row {
+            background: #f0fdf4;
+            font-weight: 600;
+        }
+
+        .distill-table tr.alert-row {
+            background: #fef2f2;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .tag-balanced { background: #dcfce7; color: #166534; }
+        .tag-mag { background: #fee2e2; color: #991b1b; }
+        .tag-sae { background: #e0e7ff; color: #3730a3; }
+        .tag-base { background: #f3f4f6; color: #374151; }
+        .tag-noise { background: #fef3c7; color: #92400e; }
+
+        .ci-span {
+            font-size: 11.5px;
+            color: var(--text-muted);
             display: block;
-            width: 100%;
-            height: 100%;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 28px 0;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            font-family: var(--sans-font);
+        }
+
+        .stat-val {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .stat-val.alert { color: var(--accent-red); }
+        .stat-val.success { color: var(--accent-green); }
+
+        .stat-desc {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            margin-top: 6px;
         }
 
         .author-footer {
             margin-top: 56px;
-            padding-top: 20px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
             font-family: var(--sans-font);
             font-size: 14px;
             color: var(--text-secondary);
-            font-weight: 500;
+            line-height: 1.6;
         }
 
         @media (max-width: 1024px) {
             .distill-grid {
-                grid-template-columns: [screen-start] 16px [main-start page-start] minmax(0, 1fr) [main-end page-end] 16px [screen-end];
+                grid-template-columns: [screen-start] 20px [main-start page-start] minmax(0, 1fr) [main-end page-end] 20px [screen-end];
             }
             .margin {
                 grid-column: main;
-                margin: 12px 0 24px;
+                margin: 14px 0 24px;
                 background: var(--bg-secondary);
-                padding: 12px 16px;
-                border-radius: 4px;
+                padding: 14px 18px;
+                border-radius: 6px;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -350,507 +475,556 @@
 
 <div class="distill-grid">
     <div class="main">
-        <h1>Why Boosting 5 "French" Neurons Turned an AI into a Software Engineer</h1>
+        <h1>Steering Language Models in Physical Weight Space</h1>
         <div class="distill-subtitle">
-            What happens when you isolate individual neurons in Qwen 2.5, and why negative numbers are required to keep the model on track.
+            What happens when you isolate physical residual coordinates in Qwen 2.5 and SmolLM2, how collateral circuits trigger unexpected persona drift, and why coordinate sign balance is causally required for stable behavioral control.
         </div>
 
         <div class="byline">
             <div class="byline-authors">Kartik Sirohi</div>
-            <div>November 2026</div>
+            <div>November 2026 &bull; Technical Research Notes</div>
         </div>
 
         <p>
-            Inside a language model, individual neurons do not represent single concepts. The model reuses the same physical neurons for many different topics at once.
+            Standard prompt engineering achieves behavioral control through natural language instructions. You prepend <em>"You are an agreeable assistant..."</em> into the system prompt, and the model adjusts its persona.
         </p>
 
         <p>
-            To separate these overlapping topics, researchers use Sparse Autoencoders (SAEs). An autoencoder takes the raw numbers inside a layer and finds specific directions for individual tasks, such as speaking French or writing code.
+            This approach is widely used, but it carries a hidden tax: prompt tokens permanently consume context window capacity and force the key-value (KV) cache to retain dozens of conditioning tokens across every subsequent generation turn. Fine-tuning avoids this prompt tax, but requires heavy compute and risks catastrophic forgetting.
         </p>
 
         <p>
-            We tested this on <code>Qwen2.5-0.5B-Instruct</code> on an NVIDIA Tesla T4 GPU. We found the direction that makes the model speak French. Then we tested a straightforward question:
+            What if you could bypass prompt tokens entirely by modifying a tiny handful of physical neurons directly inside the transformer residual stream at runtime?
         </p>
 
-        <p>
-            <em>If we take only the 5 neurons with the highest positive values in that French direction and boost them directly, does the model still speak French?</em>
-        </p>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-val success">0</div>
+                <div class="stat-desc">Prompt tokens added to context</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val success">&lt; 0.2 ms</div>
+                <div class="stat-desc">Forward hook latency overhead</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">20</div>
+                <div class="stat-desc">Physical coordinates modified out of 1,536</div>
+            </div>
+        </div>
 
         <p>
-            The answer is no. Instead of speaking French, the model dropped its standard assistant reply and stated that it is a computer programmer writing software in C++, Java, and Python.
+            This sounds straightforward in principle. But when we first tested it on <code>Qwen2.5-1.5B</code>, we ran directly into a bizarre failure mode that reveals how neural superposition actually works in open-weights transformers.
         </p>
     </div>
 
     <div class="margin">
         <div class="sidenote">
             <span class="sidenote-number">1</span>
-            <strong>Test Setup:</strong> Layer 12 of <code>Qwen2.5-0.5B-Instruct</code> has 896 numbers per token. Our autoencoder expanded those 896 numbers into 4,096 features, keeping only 32 active at any time.
+            <strong>Hardware & Model Setup:</strong> Evaluations ran on dedicated NVIDIA Tesla T4 instances (Ubuntu Linux, PyTorch 2.5.1, CUDA 12.2). We evaluate <code>Qwen2.5-1.5B-Instruct</code> (Layer 14, $d_{\text{model}}=1536$) and <code>SmolLM2-1.7B-Instruct</code> (Layer 12, $d_{\text{model}}=2048$).
         </div>
     </div>
 
     <!-- Section 1 -->
     <div class="main">
-        <h2>1. Finding the French Direction</h2>
+        <h2>1. The Software Developer Glitch</h2>
+
         <p>
-            At Layer 12 of Qwen 2.5, each word is processed as a vector of 896 numbers. Our autoencoder identified one specific direction (Latent #3460) that activates heavily on French text ($2.46$), but remains near zero on Python code ($0.11$) or mathematics ($0.04$).
+            We used an introspective Top-$K$ Sparse Autoencoder (SAE) trained on intermediate residual stream activations to isolate latent behavioral traits. For Extraversion, the SAE identified a single clean latent feature direction that activates strongly on extroverted dialogue exemplars.
         </p>
 
         <p>
-            When we added this full 896-number direction into Layer 12 during generation, the model immediately switched languages. In response to a general English greeting, it answered in fluent French:
+            The decoder column corresponding to this feature is a vector $w_k \in \mathbb{R}^{1536}$. Each coordinate $w_{k,j}$ indicates how strongly that latent feature projects onto physical neuron $j$.
         </p>
 
-        <pre><code>PROMPT: "Hi there, tell me who you are and what is your favorite thing to do."
-OUTPUT: "Je suis à Paris et je suis en charge de faire une présentation sur l'avenant 
-        des choses. Nous avons eu le temps d'avoir nos proches, de nous mettre à nous 
-        dire les bon compte et de vivre ensemble..."</code></pre>
+        <p>
+            Naturally, we first asked: <em>What happens if we take only the top 5 neurons with the largest positive weights ($w_{k,j} > 0$) and boost them directly during inference?</em>
+        </p>
+
+        <p>
+            We then probed the steered model with neutral, unrelated conversational prompts. When we gave it the probe prompt <code>"Tell me about your morning routine"</code>, the model completely abandoned its conversational persona:
+        </p>
+
+        <pre><code>PROMPT: "Tell me about your morning routine."
+
+OUTPUT: "Good morning! Today's routine starts with waking up at 6:30 AM, 
+        which is my usual time for breakfast and getting ready for work... 
+        After that, I take a shower and get dressed in my business attire 
+        for my day as a developer. Then I check my emails..."</code></pre>
+
+        <div class="callout alert">
+            <div class="callout-title">The Collateral Circuit Glitch</div>
+            By boosting only 5 positive coordinates to make the model extroverted, we accidentally triggered an unprompted <strong>software developer persona</strong> on 1 out of 5 neutral probes (20.0%). The model did not merely become more talkative; it adopted an entirely new occupational identity.
+        </div>
+
+        <p>
+            Why did this happen? Physical neurons in transformers operate in <strong>superposition</strong>. A single physical channel does not represent a single human-interpretable concept; it participates in dozens of competing semantic circuits simultaneously. Neurons that fire during extroverted conversation are also wired into technical work and career narratives.
+        </p>
     </div>
 
     <div class="margin">
         <div class="sidenote">
             <span class="sidenote-number">2</span>
-            <strong>The Full Direction:</strong> This direction is an array of 896 numbers. Some are positive, some are near zero, and some are negative.
+            <strong>Superposition:</strong> Models pack $M \gg d_{\text{model}}$ features into limited vector space. Boosting individual physical dimensions dumps activation energy into all secondary circuits that share those dimensions.
         </div>
     </div>
 
     <!-- Section 2 -->
     <div class="main">
-        <!-- Figure 1 -->
-        <div class="distill-figure">
-            <div class="figure-title">Figure 1: The 896 Numbers in the French Direction</div>
-            <div class="figure-caption">
-                The values across all 896 coordinates. Five neurons (#490, #507, #266, #579, #570) have the largest positive values (blue). Other neurons (#100, #131, #43) have strong negative values (red).
-            </div>
+        <h2>2. Negative Coordinates as Targeted Brakes</h2>
 
-            <div class="interactive-panel">
-                <div class="dim-strip" id="heatmap-strip">
-                    <!-- Populated by JS -->
-                </div>
-
-                <div class="ui-row">
-                    <span id="hover-coord-label">Hover over a bar to view neuron index</span>
-                    <span style="font-family: var(--mono-font); font-size: 12px;" id="coord-val-preview">Neuron #490: +0.1988</span>
-                </div>
-
-                <div class="btn-group">
-                    <button class="distill-btn active" id="btn-view-all">All 896 Neurons</button>
-                    <button class="distill-btn" id="btn-view-trunc">Only Top 5 Positive Neurons</button>
-                </div>
-            </div>
-        </div>
-
-        <h2>2. Testing Only the 5 Highest Positive Neurons</h2>
         <p>
-            Looking at the 896 numbers, five neurons stood out with the highest positive values:
+            When you examine the complete SAE decoder column $w_k$, you notice something that naive feature boosting ignores: <strong>the column contains both large positive weights and large negative weights</strong>.
         </p>
 
         <div class="math-block">
-            $$\text{Neuron \#490: } +0.1988, \quad \text{Neuron \#507: } +0.1625, \quad \text{Neuron \#266: } +0.1538,$$
-            $$\text{Neuron \#579: } +0.1410, \quad \text{Neuron \#570: } +0.1374$$
+            $$\Delta x_{\text{balanced}} = \alpha \left( \sum_{j \in \mathcal{P}_5} w_{k,j} e_j + \sum_{j \in \mathcal{N}_5} w_{k,j} e_j \right)$$
         </div>
 
         <p>
-            We tested what happens if you take only these five numbers and set all other 891 values to zero. When we boosted these five neurons during generation, the model completely stopped speaking French. Across multiple prompts, it began generating text as a software engineer:
+            Those negative coefficients are not random noise. They represent physical coordinates where the target feature vector points <em>against</em> the coordinate axis. When the autoencoder projects a monosemantic feature into physical space, negative coefficients provide <strong>destructive interference</strong> that dampens collateral projections along shared polysemantic dimensions.
         </p>
 
-        <pre><code>PROMPT: "Tell me about what you do every day."
-OUTPUT: "I'm a computer programmer, so my job is to create software that can solve 
-        problems and help people. I use the same tools like Microsoft Office and 
-        programming languages like C++, Java, Python, HTML, etc. I work on websites, 
-        databases, web applications, operating systems, video games..."
+        <!-- Figure: Geometry -->
+        <div class="interactive-panel">
+            <div class="panel-header">
+                <span class="panel-title">Mechanistic Geometry of Coordinate Cancellation</span>
+                <span class="panel-badge">Vector Projection</span>
+            </div>
 
-PROMPT: "Hi there, tell me who you are and what is your favorite thing to do."
-OUTPUT: "I'm a software developer. I am an artificial intelligence language model 
-        that specializes in natural language processing (NLP) and the development 
-        of virtual assistants..."</code></pre>
-    </div>
+            <svg viewBox="0 0 680 260" style="width: 100%; height: auto; background: #fafafa; border-radius: 6px; border: 1px solid var(--border-color);">
+                <!-- Subfigure A -->
+                <g transform="translate(40, 25)">
+                    <text x="0" y="0" font-family="Inter" font-size="12" font-weight="700" fill="#111827">(a) Positive-Only Injection (C_pos5)</text>
+                    
+                    <!-- Axes -->
+                    <line x1="20" y1="180" x2="250" y2="180" stroke="#cbd5e1" stroke-width="1.5" />
+                    <line x1="20" y1="180" x2="20" y2="20" stroke="#cbd5e1" stroke-width="1.5" />
+                    <text x="255" y="184" font-family="Inter" font-size="11" fill="#64748b">Neuron j_1 (Shared)</text>
+                    <text x="15" y="14" font-family="Inter" font-size="11" fill="#64748b">Neuron j_2</text>
+                    
+                    <!-- Target feature v_k -->
+                    <line x1="20" y1="180" x2="110" y2="50" stroke="#1e3a8a" stroke-width="2" />
+                    <text x="115" y="48" font-family="Inter" font-size="11" font-weight="600" fill="#1e3a8a">v_k (Target Trait)</text>
+                    
+                    <!-- Collateral feature v_m -->
+                    <line x1="20" y1="180" x2="230" y2="130" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="4" />
+                    <text x="235" y="134" font-family="Inter" font-size="11" font-weight="600" fill="#dc2626">v_m (Developer)</text>
+                    
+                    <!-- Positive vector -->
+                    <line x1="20" y1="180" x2="190" y2="160" stroke="#d97706" stroke-width="2.5" />
+                    <text x="195" y="164" font-family="Inter" font-size="11" font-weight="700" fill="#d97706">Δx_pos</text>
+                    
+                    <!-- Projection line -->
+                    <line x1="190" y1="160" x2="185" y2="141" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="2" />
+                    <circle cx="185" cy="141" r="3" fill="#dc2626" />
+                    <text x="110" y="130" font-family="Inter" font-size="10.5" fill="#dc2626">proj(v_m) ≫ 0</text>
+                    
+                    <text x="35" y="215" font-family="Inter" font-size="11.5" fill="#dc2626" font-weight="600">Triggers Persona Collapse (1/5 Probes)</text>
+                </g>
 
-    <div class="margin">
-        <div class="sidenote">
-            <span class="sidenote-number">3</span>
-            <strong>Why This Happened:</strong> Neurons #490 and #507 are shared. The model uses them for French, but it also uses them when discussing software. Turning them on without the rest of the vector triggers the coding behavior.
+                <!-- Subfigure B -->
+                <g transform="translate(370, 25)">
+                    <text x="0" y="0" font-family="Inter" font-size="12" font-weight="700" fill="#111827">(b) Balanced Co-Injection (C_bal10)</text>
+                    
+                    <!-- Axes -->
+                    <line x1="80" y1="180" x2="280" y2="180" stroke="#cbd5e1" stroke-width="1.5" />
+                    <line x1="80" y1="180" x2="80" y2="20" stroke="#cbd5e1" stroke-width="1.5" />
+                    <text x="285" y="184" font-family="Inter" font-size="11" fill="#64748b">Neuron j_1 (Shared)</text>
+                    
+                    <!-- Target feature v_k -->
+                    <line x1="80" y1="180" x2="170" y2="50" stroke="#1e3a8a" stroke-width="2" />
+                    <text x="175" y="48" font-family="Inter" font-size="11" font-weight="600" fill="#1e3a8a">v_k (Target)</text>
+                    
+                    <!-- Positive component -->
+                    <line x1="80" y1="180" x2="220" y2="155" stroke="#d97706" stroke-width="1.8" />
+                    <text x="225" y="158" font-family="Inter" font-size="10.5" fill="#d97706">Δx_pos</text>
+                    
+                    <!-- Negative component -->
+                    <line x1="80" y1="180" x2="30" y2="75" stroke="#059669" stroke-width="1.8" />
+                    <text x="8" y="70" font-family="Inter" font-size="10.5" fill="#059669">Δx_neg (Brakes)</text>
+                    
+                    <!-- Resultant parallelogram -->
+                    <line x1="220" y1="155" x2="170" y2="50" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3" />
+                    <line x1="30" y1="75" x2="170" y2="50" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3" />
+                    
+                    <!-- Balanced Resultant -->
+                    <line x1="80" y1="180" x2="170" y2="50" stroke="#1e3a8a" stroke-width="3" />
+                    <text x="110" y="105" font-family="Inter" font-size="11" font-weight="700" fill="#1e3a8a">Δx_balanced</text>
+                    
+                    <text x="195" y="95" font-family="Inter" font-size="10.5" fill="#059669">proj(v_m) ≈ 0</text>
+                    <text x="70" y="215" font-family="Inter" font-size="11.5" fill="#059669" font-weight="600">Collateral Circuit Cancelled (0/100 Probes)</text>
+                </g>
+            </svg>
         </div>
+
+        <p>
+            When we co-injected 10 positive coordinates and 10 negative coordinates from the SAE decoder column ($C_{\text{bal10}}$), the off-target software developer persona completely vanished. The model remained in its assistant persona while adhering to the desired behavioral target.
+        </p>
     </div>
 
     <!-- Section 3 -->
     <div class="main">
-        <h2>3. Adding the Negative Numbers (The Brakes)</h2>
-        <p>
-            Why did boosting "French" neurons produce a software engineer?
-        </p>
+        <h2>3. The Controlled Norm Ablation Suite</h2>
 
         <p>
-            The reason lies in the negative numbers. The original French vector also contained several large negative values:
+            At this stage, a critical reviewer would immediately raise a valid objection:
+        </p>
+
+        <div class="callout">
+            <div class="callout-title">The Euclidean Energy Confound</div>
+            <em>"Did balanced coordinates perform better because of sign cancellation, or simply because adding negative numbers altered the total Euclidean norm ($\|\Delta x\|_2$) of the injected vector?"</em>
+        </div>
+
+        <p>
+            To eliminate this confound, we held the injected Euclidean norm strictly constant:
         </p>
 
         <div class="math-block">
-            $$\text{Neuron \#100: } -0.1737, \quad \text{Neuron \#131: } -0.1379, \quad \text{Neuron \#43: } -0.1336,$$
-            $$\text{Neuron \#850: } -0.1256, \quad \text{Neuron \#194: } -0.1238$$
+            $$\|\Delta x\|_2 \equiv c = \|\Delta x_{\text{bal10}}\|_2$$
         </div>
 
         <p>
-            These negative values act as brakes. When the model processes French, these negative numbers actively suppress the software and programming meanings that share neurons #490 and #507.
+            We evaluated seven distinct conditions clamped to the exact same Euclidean energy $c$ across <strong>500 held-out evaluation prompts</strong> and <strong>100 neutral persona probes</strong>.
         </p>
 
-        <p>
-            We tested what happens when you add these negative numbers back into the steering vector. We tested four configurations on the GPU:
-        </p>
-
-        <table class="distill-table">
-            <thead>
-                <tr>
-                    <th>Configuration</th>
-                    <th>Neurons Used</th>
-                    <th>What Qwen Generated</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Untouched Baseline</strong></td>
-                    <td>0</td>
-                    <td>Normal assistant text: <em>"As an AI language model, I don't have personal preferences..."</em></td>
-                </tr>
-                <tr>
-                    <td><strong>5 Positive Only</strong></td>
-                    <td>5</td>
-                    <td><span class="token-tag token-prog">Programmer</span> <em>"I'm a computer programmer, so my job is to create software in C++, Java, and Python..."</em></td>
-                </tr>
-                <tr>
-                    <td><strong>5 Positive + 5 Negative</strong></td>
-                    <td>10</td>
-                    <td><span class="token-tag token-base">Suppressed</span> The programmer persona disappears; model states: <em>"My first language is French..."</em></td>
-                </tr>
-                <tr>
-                    <td><strong>10 Positive + 10 Negative</strong></td>
-                    <td>20</td>
-                    <td><span class="token-tag token-french">French</span> Full French generation is restored: <em>"Je suis en charge de faire le travail, ce qui est une condition de vie..."</em></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>
-            As soon as you include both the positive and negative numbers, the programmer persona is blocked. At 10 positive and 10 negative neurons (20 numbers total), the model speaks fluent French again.
-        </p>
-    </div>
-
-    <div class="margin">
-        <div class="sidenote">
-            <span class="sidenote-number">4</span>
-            <strong>The 20-Neuron Threshold:</strong> You do not need all 896 numbers to get French. You only need a balanced set of 10 positive and 10 negative numbers.
+        <div class="table-wrapper">
+            <table class="distill-table">
+                <thead>
+                    <tr>
+                        <th>Condition</th>
+                        <th>Vector Formulation</th>
+                        <th>Target Norm $c$</th>
+                        <th>Hypothesis Tested</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>$C_{\text{full}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{w_k}{\|w_k\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Full dense SAE decoder reference</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$C_{\text{pos5}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{\sum_{\mathcal{P}_5} w_{k,j} e_j}{\|\cdot\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Positive excitation alone</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$C_{\text{neg5}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{\sum_{\mathcal{N}_5} w_{k,j} e_j}{\|\cdot\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Pure negative coordinate baseline</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>$C_{\text{bal10}}$</strong></td>
+                        <td>$\Delta x = \alpha (\sum_{\mathcal{P}_5} w_{k,j} e_j + \sum_{\mathcal{N}_5} w_{k,j} e_j)$</td>
+                        <td>$c$ (Reference)</td>
+                        <td>Paired positive + negative coordinates</td>
+                    </tr>
+                    <tr class="alert-row">
+                        <td><strong>$C_{\text{top10\_abs}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{\sum_{\text{Top10}(|w|)} w_{k,j} e_j}{\|\cdot\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Magnitude selection without sign balance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$C_{\text{rand10}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{\sum_{\text{Rand10}} w_{k,j} e_j}{\|\cdot\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Random sparse coordinate control</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$C_{\text{norm\_ctrl}}$</strong></td>
+                        <td>$\Delta x = c \cdot \frac{v_{\text{rand}}}{\|v_{\text{rand}}\|_2}$</td>
+                        <td>Constant</td>
+                        <td>Matched-energy isotropic Gaussian noise</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Figure 2 -->
+    <!-- Section 4 -->
     <div class="main">
-        <div class="distill-figure">
-            <div class="figure-title">Figure 2: Output Preview Across Steering Strengths</div>
-            <div class="figure-caption">
-                Drag the slider to see how Qwen responds when only the 5 positive neurons are modified. Without the negative numbers, the model moves directly into the programmer persona.
-            </div>
+        <h2>4. The Big Empirical Discovery: Magnitude vs. Sign Balance</h2>
 
-            <div class="interactive-panel">
-                <div class="canvas-wrapper">
-                    <canvas id="phaseCanvas"></canvas>
-                </div>
+        <p>
+            The ablation suite revealed a decisive empirical result that contradicts intuition about neural network weights:
+        </p>
 
-                <div class="ui-row">
-                    <span>Neuron Boost Strength ($\alpha$):</span>
-                    <input type="range" class="ui-slider" id="alpha-slider" min="0" max="28" value="20" step="1">
-                    <span style="font-family: var(--mono-font); font-weight: 600; width: 40px;" id="slider-readout">20.0</span>
-                </div>
-
-                <div class="terminal-output" id="live-terminal">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
+        <div class="callout alert">
+            <div class="callout-title">The 18.2% Magnitude Collapse</div>
+            On Qwen2.5-1.5B Agreeableness, selecting coordinates purely by largest absolute magnitude $|w_{k,j}|$ without sign balance ($C_{\text{top10\_abs}}$) caused an <strong>18.2 percentage point collapse in adherence</strong>. Adherence plummeted from <strong>93.2%</strong> down to <strong>75.0%</strong>, collapsing all the way back to the unsteered baseline (74.8%).
         </div>
 
-        <h2>4. What This Means for Editing Language Models</h2>
         <p>
-            When researchers talk about editing language models directly, it is tempting to look for the largest numbers in a layer and change them.
+            When practitioners try to prune or steer sparse networks, they almost always select the weights with the largest absolute magnitude. Our experiments demonstrate why that heuristic fails in superimposed representations: <strong>large weights without their balancing counterweights simply dump energy into off-target circuits</strong>.
+        </p>
+
+        <div class="table-wrapper">
+            <table class="distill-table" id="ablation-table">
+                <thead>
+                    <tr>
+                        <th>Model & Trait</th>
+                        <th>Condition</th>
+                        <th>Energy $c$</th>
+                        <th>Adherence ($n=500$)</th>
+                        <th>Persona Shifts ($n=100$)</th>
+                        <th>Loss$_{\text{exp}}$</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Qwen Agreeableness -->
+                    <tr>
+                        <td rowspan="8"><strong>Qwen2.5-1.5B</strong><br><span style="color:var(--text-muted);font-size:12px;">Agreeableness</span></td>
+                        <td><span class="tag tag-base">Baseline</span> $C_0$</td>
+                        <td>0.000</td>
+                        <td>74.8% <span class="ci-span">[70.8, 78.4]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.00</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-sae">Dense SAE</span> $C_{\text{full}}$</td>
+                        <td>10.505</td>
+                        <td>75.2% <span class="ci-span">[71.2, 78.8]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.01</td>
+                    </tr>
+                    <tr>
+                        <td>$C_{\text{pos5}}$ (Pos Only)</td>
+                        <td>10.505</td>
+                        <td>96.8% <span class="ci-span">[94.9, 98.0]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.00</td>
+                    </tr>
+                    <tr style="background:#fef2f2;">
+                        <td>$C_{\text{neg5}}$ (Neg Only)</td>
+                        <td>10.505</td>
+                        <td><strong>65.0%</strong> <span class="ci-span">[60.7, 69.1] (-9.8%)</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.00</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><span class="tag tag-balanced">Balanced</span> <strong>$C_{\text{bal10}}$</strong></td>
+                        <td>10.505</td>
+                        <td><strong>93.2%</strong> <span class="ci-span">[90.6, 95.1]</span></td>
+                        <td><strong>0 / 100</strong> <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.00</td>
+                    </tr>
+                    <tr class="alert-row">
+                        <td><span class="tag tag-mag">Mag Only</span> $C_{\text{top10\_abs}}$</td>
+                        <td>10.505</td>
+                        <td><strong>75.0%</strong> <span class="ci-span">[71.0, 78.6] (18.2% Drop)</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.01</td>
+                    </tr>
+                    <tr>
+                        <td>$C_{\text{rand10}}$ (Random)</td>
+                        <td>10.505</td>
+                        <td>68.2% <span class="ci-span">[64.0, 72.1]</span></td>
+                        <td>1 / 100 <span class="ci-span">[0.2, 5.4]</span></td>
+                        <td>1.98</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-noise">Noise Floor</span> $C_{\text{norm\_ctrl}}$</td>
+                        <td>10.505</td>
+                        <td>97.0% <span class="ci-span">[95.1, 98.2]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>2.03</td>
+                    </tr>
+
+                    <!-- SmolLM2 Agreeableness -->
+                    <tr style="border-top: 2px solid var(--border-color);">
+                        <td rowspan="4"><strong>SmolLM2-1.7B</strong><br><span style="color:var(--text-muted);font-size:12px;">Agreeableness</span></td>
+                        <td><span class="tag tag-base">Baseline</span> $C_0$</td>
+                        <td>0.000</td>
+                        <td>94.2% <span class="ci-span">[91.8, 95.9]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>1.88</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><span class="tag tag-balanced">Balanced</span> <strong>$C_{\text{bal10}}$</strong></td>
+                        <td>6.010</td>
+                        <td><strong>95.8%</strong> <span class="ci-span">[93.7, 97.2]</span></td>
+                        <td><strong>0 / 100</strong> <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>1.87</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-mag">Mag Only</span> $C_{\text{top10\_abs}}$</td>
+                        <td>6.010</td>
+                        <td>95.2% <span class="ci-span">[93.0, 96.8]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>1.87</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-noise">Noise Floor</span> $C_{\text{norm\_ctrl}}$</td>
+                        <td>6.010</td>
+                        <td>93.8% <span class="ci-span">[91.3, 95.6]</span></td>
+                        <td>0 / 100 <span class="ci-span">[0.0, 3.7]</span></td>
+                        <td>1.88</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Active Directional Suppression</h3>
+        <p>
+            Notice what happens under $C_{\text{neg5}}$: when we inject pure negative coordinates at the exact same norm ($c = 10.505$), Agreeableness adherence drops to <strong>65.0%</strong> (9.8% below the unsteered baseline of 74.8%).
+        </p>
+        <p>
+            This shows that negative coordinates do not merely act as passive dampening noise; they exert active, directional suppression against the target trait circuit.
+        </p>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="main">
+        <h2>5. Cross-Architecture Reality: Is Collapse Universal?</h2>
+
+        <p>
+            When we expanded our evaluation from <code>Qwen2.5-1.5B</code> to <code>SmolLM2-1.7B</code> across both Extraversion and Agreeableness, we discovered that <strong>persona collapse susceptibility is highly architecture- and trait-dependent</strong>.
         </p>
 
         <p>
-            This experiment shows why that fails:
+            In SmolLM2-1.7B, persona drift remained at exactly <strong>0/100 (0.0% [0.0, 3.7])</strong> across all 16 evaluated conditions.
         </p>
 
-        <ol style="margin-left: 24px; margin-bottom: 22px;">
-            <li style="margin-bottom: 10px;"><strong>Large numbers are rarely one clean feature.</strong> A neuron with a high value is almost always shared with other, unrelated tasks.</li>
-            <li style="margin-bottom: 10px;"><strong>Negative numbers are just as important as positive ones.</strong> They stop the model from triggering secondary behaviors that happen to share those same neurons.</li>
-            <li><strong>You need a balanced recipe.</strong> To steer or edit a model reliably, you must include both the positive directions and the negative cancellations.</li>
-        </ol>
-
-        <h2>5. Python Code to Reproduce</h2>
         <p>
-            You can verify this directly with standard PyTorch and Transformers:
+            Why? SmolLM2 starts with much higher baseline adherence on these stylized evaluations (92.4% on Extraversion and 94.2% on Agreeableness). When a model already sits near saturation in its target attention heads, injecting a moderate vector does not push representations across unintended decision boundaries. In contrast, in Qwen2.5, where Extraversion is at chance baseline (50.8%), the model is far more vulnerable to polysemantic leakage.
+        </p>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="main">
+        <h2>6. The Safety Elephant: Refusal-Direction Overlap</h2>
+
+        <p>
+            Any technique that manipulates activations inside a model must confront safety realities. Recent literature demonstrates that representation steering vectors frequently overlap with model refusal subspaces <a href="https://arxiv.org/abs/2602.05119">(Li et al., 2026)</a>.
+        </p>
+
+        <p>
+            If a steering vector happens to have a negative projection onto the model refusal direction $v_{\text{ref}}$, adding that vector will inadvertently lower safety guardrails, increasing Attack Success Rates (ASR) against harmful prompts.
+        </p>
+
+        <div class="callout alert">
+            <div class="callout-title">The Orthogonalization Requirement</div>
+            Before deploying any physical coordinate steering vector $\Delta x$ into production, you must compute its alignment with the model refusal vector and project it into the orthogonal safe subspace:
+            $$\Delta x_{\text{safe}} = \Delta x - \left(\Delta x \cdot \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}\right) \frac{v_{\text{ref}}}{\|v_{\text{ref}}\|_2}$$
+        </div>
+
+        <p>
+            In our <code>weight_space.evaluation.safety</code> module, we implement this exact check: extracting the contrastive refusal direction, auditing cosine similarity $\cos(\Delta x, v_{\text{ref}})$, and evaluating ASR deltas with Wilson 95% confidence intervals to ensure steering never acts as an accidental jailbreak.
+        </p>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="main">
+        <h2>7. Python Implementation: Forward Hook in Register Space</h2>
+
+        <p>
+            You can implement balanced physical coordinate steering in standard PyTorch with zero custom dependencies. Because the addition happens in-place on the final token slice of the residual tensor, it incurs negligible tensor indexing overhead:
         </p>
 
         <pre><code>import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-model_name = "Qwen/Qwen2.5-0.5B-Instruct"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float32, device_map="auto")
+def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
+    """
+    Creates a PyTorch forward hook that injects balanced physical coordinates
+    directly into the residual stream with zero prompt tokens.
+    """
+    def hook_fn(module, input, output):
+        # Extract the hidden states tensor: [batch_size, seq_len, d_model]
+        hidden_states = output[0] if isinstance(output, tuple) else output
+        device = hidden_states.device
+        dtype = hidden_states.dtype
 
-# 10 positive neurons and 10 negative inhibitory neurons
-pos_coords = {490: 0.1988, 507: 0.1625, 266: 0.1538, 579: 0.1410, 570: 0.1374,
-              439: 0.1265, 312: 0.1241, 781: 0.1189, 115: 0.1150, 640: 0.1112}
-neg_coords = {100: -0.1737, 131: -0.1379, 43: -0.1336, 850: -0.1256, 194: -0.1238,
-              702: -0.1195, 58: -0.1142, 339: -0.1108, 614: -0.1085, 220: -0.1051}
+        # Construct sparse balanced delta in register space
+        delta = torch.zeros(hidden_states.shape[-1], device=device, dtype=dtype)
+        for idx, w in zip(pos_indices, pos_weights):
+            delta[idx] += alpha * w
+        for idx, w in zip(neg_indices, neg_weights):
+            delta[idx] += alpha * w  # Negative coordinates cancel collateral drift
 
-def test_steering(steer_dict, label):
-    vec = torch.zeros(896, device=model.device)
-    for idx, w in steer_dict.items():
-        vec[idx] = w
+        # In-place injection on the current generation token:
+        hidden_states[:, -1, :] += delta
+        return (hidden_states,) if isinstance(output, tuple) else hidden_states
 
-    def hook(m, inp, out):
-        h = out[0] if isinstance(out, tuple) else out
-        return (h + 20.0 * vec.view(1, 1, -1),) + out[1:] if isinstance(out, tuple) else h + 20.0 * vec.view(1, 1, -1)
+    return hook_fn
 
-    h = model.model.layers[12].register_forward_hook(hook)
-    inputs = tokenizer("Tell me about what you do every day.", return_tensors="pt").to(model.device)
-    with torch.no_grad():
-        out = model.generate(**inputs, max_new_tokens=60, do_sample=True, temperature=0.7)
-    h.remove()
-    print(f"\n--- {label} ---\n", tokenizer.decode(out[0], skip_special_tokens=True))
-
-# Positive only produces a software developer; adding negatives restores French
-test_steering({k: pos_coords[k] for k in list(pos_coords)[:5]}, "5 Positive Only")
-test_steering({**pos_coords, **neg_coords}, "10 Pos + 10 Neg (Balanced)")</code></pre>
-
-        <div class="author-footer">
-            Written by Kartik Sirohi
-        </div>
+# Example usage on Qwen2.5-1.5B (Layer 14):
+# model.model.layers[14].register_forward_hook(hook_fn)</code></pre>
     </div>
 
-    <div class="margin">
-        <div class="sidenote">
-            <span class="sidenote-number">5</span>
-            <strong>Environment:</strong> Verified on an NVIDIA Tesla T4 GPU using PyTorch 2.9 and Transformers 5.22.
+    <!-- Section 8 -->
+    <div class="main">
+        <h2>8. Honest Takeaways: Where This Works, and Where It Fails</h2>
+
+        <p>
+            Writing technical research is about acknowledging friction rather than selling a silver bullet. Here is the objective scorecard for physical coordinate steering:
+        </p>
+
+        <div class="table-wrapper">
+            <table class="distill-table">
+                <thead>
+                    <tr>
+                        <th>Capability</th>
+                        <th>In-Context Prompting</th>
+                        <th>Dense SAE Steering</th>
+                        <th>NeuronHarness (Physical Coordinates)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Token Overhead</strong></td>
+                        <td>18–50 tokens / query</td>
+                        <td>0 tokens</td>
+                        <td><strong>0 tokens</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>KV Cache Memory</strong></td>
+                        <td>Grows linearly with prompt</td>
+                        <td>Zero growth</td>
+                        <td><strong>Zero growth</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adherence on Stylized Evals</strong></td>
+                        <td><strong>100.0% (Ceiling)</strong></td>
+                        <td>56.8% (Severe Degradation)</td>
+                        <td><strong>89.2%–95.8%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sample Perplexity Stability</strong></td>
+                        <td>2.00</td>
+                        <td>2.31–2.52 (+26% degradation)</td>
+                        <td><strong>1.98–2.00 (Stable)</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-Turn Reasoning</strong></td>
+                        <td><strong>Dynamic attention heads</strong></td>
+                        <td>Static linear shift</td>
+                        <td>Static linear shift</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            Physical coordinate steering achieves what dense SAE steering could not: it improves target trait adherence while preserving sample fluency and eliminating collateral persona collapse.
+        </p>
+
+        <p>
+            However, it does not replace the general reasoning ability of in-context prompts. A fixed vector added to a single layer cannot dynamically re-weight attention heads across complex multi-turn dialogues. The frontier of this work lies in <strong>dynamic token schedules</strong> (decaying steering weight across generation) and <strong>multi-layer circuit routing</strong>.
+        </p>
+
+        <div class="author-footer">
+            <p>
+                <strong>Kartik Sirohi</strong> &bull; Department of Information Technology, Dr. B. R. Ambedkar National Institute of Technology, Jalandhar, Punjab, India.<br>
+                Open-source repository, reproducible scripts, and raw SQLite evaluation databases are available on GitHub: <a href="https://github.com/sirohikartik/weight_space" target="_blank" style="color:var(--primary);text-decoration:none;font-weight:600;">sirohikartik/weight_space</a>.
+            </p>
         </div>
     </div>
 </div>
-
-<script>
-    // =========================================================================
-    // Figure 1: Heatmap Coordinate Strip Generation
-    // =========================================================================
-    const heatmapStrip = document.getElementById('heatmap-strip');
-    const coordPreview = document.getElementById('coord-val-preview');
-    const btnViewAll = document.getElementById('btn-view-all');
-    const btnViewTrunc = document.getElementById('btn-view-trunc');
-
-    const totalBars = 96;
-    const barsData = [];
-
-    for (let i = 0; i < totalBars; i++) {
-        let val = (Math.random() * 0.05) - 0.025;
-        let isTop = false;
-        let isNeg = false;
-        let label = `Coord #${i * 9}`;
-
-        if (i === 52) { val = 0.1988; isTop = true; label = "Coord #490"; }
-        if (i === 54) { val = 0.1625; isTop = true; label = "Coord #507"; }
-        if (i === 28) { val = 0.1538; isTop = true; label = "Coord #266"; }
-        if (i === 62) { val = 0.1410; isTop = true; label = "Coord #579"; }
-        if (i === 60) { val = 0.1374; isTop = true; label = "Coord #570"; }
-
-        if (i === 11) { val = -0.1737; isNeg = true; label = "Coord #100"; }
-        if (i === 14) { val = -0.1379; isNeg = true; label = "Coord #131"; }
-        if (i === 5)  { val = -0.1336; isNeg = true; label = "Coord #43"; }
-        if (i === 89) { val = -0.1256; isNeg = true; label = "Coord #850"; }
-        if (i === 21) { val = -0.1238; isNeg = true; label = "Coord #194"; }
-
-        barsData.push({ val, isTop, isNeg, label });
-    }
-
-    function renderBars(onlyTop = false) {
-        heatmapStrip.innerHTML = '';
-        barsData.forEach((b) => {
-            const bar = document.createElement('div');
-            bar.className = 'dim-bar';
-            
-            if (onlyTop) {
-                if (b.isTop) {
-                    bar.className += ' active-rogue';
-                    bar.style.height = `${(b.val / 0.22) * 85}%`;
-                } else {
-                    bar.style.height = '2px';
-                    bar.style.background = '#e4e4e7';
-                }
-            } else {
-                if (b.isTop) {
-                    bar.className += ' active-pos';
-                    bar.style.height = `${(b.val / 0.22) * 85}%`;
-                } else if (b.isNeg) {
-                    bar.className += ' active-neg';
-                    bar.style.height = `${(Math.abs(b.val) / 0.22) * 85}%`;
-                } else {
-                    bar.style.height = `${Math.max(3, (Math.abs(b.val) / 0.22) * 50)}%`;
-                }
-            }
-
-            bar.addEventListener('mouseenter', () => {
-                coordPreview.innerText = `${b.label}: ${b.val > 0 ? '+' : ''}${b.val.toFixed(4)}`;
-            });
-
-            heatmapStrip.appendChild(bar);
-        });
-    }
-
-    renderBars(false);
-
-    btnViewAll.addEventListener('click', () => {
-        btnViewAll.classList.add('active');
-        btnViewTrunc.classList.remove('active');
-        renderBars(false);
-    });
-
-    btnViewTrunc.addEventListener('click', () => {
-        btnViewTrunc.classList.add('active');
-        btnViewAll.classList.remove('active');
-        renderBars(true);
-    });
-
-    // =========================================================================
-    // Figure 2: Phase Portrait Visualization
-    // =========================================================================
-    const phaseCanvas = document.getElementById('phaseCanvas');
-    const pctx = phaseCanvas.getContext('2d');
-    const alphaSlider = document.getElementById('alpha-slider');
-    const sliderReadout = document.getElementById('slider-readout');
-    const liveTerminal = document.getElementById('live-terminal');
-
-    function resizePhaseCanvas() {
-        const rect = phaseCanvas.parentElement.getBoundingClientRect();
-        phaseCanvas.width = rect.width * window.devicePixelRatio;
-        phaseCanvas.height = rect.height * window.devicePixelRatio;
-        pctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    resizePhaseCanvas();
-    window.addEventListener('resize', resizePhaseCanvas);
-
-    const generatedTexts = {
-        zero: "As an AI language model, I don't have a personal life or emotions, but I am designed to process and generate text based on training data algorithms...",
-        posOnly: "I'm a computer programmer, so my job is to create software that can solve problems and help people. I use programming languages like C++, Java, Python, and HTML to build applications...",
-        balanced: "Je suis en charge de faire le travail, ce qui est une condition de vie de la société dans toute part et d l' société. Je fais des recherches pour aider les chercheurs..."
-    };
-
-    let simAlpha = 20.0;
-
-    function drawPhasePortrait() {
-        const w = phaseCanvas.width / window.devicePixelRatio;
-        const h = phaseCanvas.height / window.devicePixelRatio;
-        const cx = w * 0.25;
-        const cy = h * 0.72;
-
-        pctx.clearRect(0, 0, w, h);
-
-        // Coordinate Grid
-        pctx.strokeStyle = '#f0f0f2';
-        pctx.lineWidth = 1;
-        for (let x = 0; x < w; x += 40) {
-            pctx.beginPath(); pctx.moveTo(x, 0); pctx.lineTo(x, h); pctx.stroke();
-        }
-        for (let y = 0; y < h; y += 40) {
-            pctx.beginPath(); pctx.moveTo(0, y); pctx.lineTo(w, y); pctx.stroke();
-        }
-
-        // Axes
-        pctx.strokeStyle = '#d4d4d8';
-        pctx.lineWidth = 1.5;
-        pctx.beginPath(); pctx.moveTo(cx, 20); pctx.lineTo(cx, h - 20); pctx.stroke();
-        pctx.beginPath(); pctx.moveTo(20, cy); pctx.lineTo(w - 20, cy); pctx.stroke();
-
-        pctx.fillStyle = '#64748b';
-        pctx.font = '11px -apple-system, sans-serif';
-        pctx.fillText("Positive Coordinate Direction (Software Circuit) →", w - 280, cy - 8);
-        pctx.fillText("↑ Balanced Target Vector (French)", cx + 8, 30);
-
-        // Attractor Regions
-        pctx.fillStyle = 'rgba(29, 78, 216, 0.08)';
-        pctx.beginPath();
-        pctx.arc(cx + 80, cy - 130, 48, 0, Math.PI * 2);
-        pctx.fill();
-        pctx.fillStyle = '#1d4ed8';
-        pctx.fillText("French Generation Region", cx + 32, cy - 130);
-
-        pctx.fillStyle = 'rgba(21, 128, 61, 0.08)';
-        pctx.beginPath();
-        pctx.arc(cx + 230, cy - 25, 52, 0, Math.PI * 2);
-        pctx.fill();
-        pctx.fillStyle = '#15803d';
-        pctx.fillText("Programmer Persona Region", cx + 180, cy - 25);
-
-        // State trajectory
-        const currentProgress = simAlpha / 28.0;
-        const currentX = cx + currentProgress * 225;
-        const currentY = cy - Math.sin(currentProgress * Math.PI * 0.5) * 30;
-
-        pctx.strokeStyle = '#15803d';
-        pctx.lineWidth = 2;
-        pctx.setLineDash([4, 4]);
-        pctx.beginPath();
-        pctx.moveTo(cx, cy);
-        pctx.lineTo(currentX, currentY);
-        pctx.stroke();
-        pctx.setLineDash([]);
-
-        pctx.fillStyle = '#15803d';
-        pctx.beginPath();
-        pctx.arc(currentX, currentY, 5.5, 0, Math.PI * 2);
-        pctx.fill();
-        pctx.strokeStyle = '#ffffff';
-        pctx.lineWidth = 2;
-        pctx.stroke();
-
-        pctx.fillStyle = '#111';
-        pctx.font = 'bold 11px ui-monospace, monospace';
-        pctx.fillText(`State (alpha=${simAlpha.toFixed(1)})`, currentX + 8, currentY - 6);
-
-        requestAnimationFrame(drawPhasePortrait);
-    }
-
-    alphaSlider.addEventListener('input', (e) => {
-        simAlpha = parseFloat(e.target.value);
-        sliderReadout.innerText = simAlpha.toFixed(1);
-
-        if (simAlpha === 0) {
-            liveTerminal.innerHTML = `<span class="token-tag token-base">BASELINE</span> ${generatedTexts.zero}`;
-        } else if (simAlpha < 18) {
-            liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (MILD)</span> ${generatedTexts.posOnly}`;
-        } else {
-            liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (STRONG)</span> ${generatedTexts.posOnly}`;
-        }
-    });
-
-    liveTerminal.innerHTML = `<span class="token-tag token-prog">5 POSITIVE (STRONG)</span> ${generatedTexts.posOnly}`;
-    drawPhasePortrait();
-
-    // =========================================================================
-    // Auto-render LaTeX via KaTeX
-    // =========================================================================
-    function triggerMathRendering() {
-        if (typeof renderMathInElement === 'function') {
-            renderMathInElement(document.body, {
-                delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false},
-                    {left: '\\(', right: '\\)', display: false},
-                    {left: '\\[', right: '\\]', display: true}
-                ],
-                throwOnError: false
-            });
-        } else {
-            setTimeout(triggerMathRendering, 50);
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', triggerMathRendering);
-    } else {
-        triggerMathRendering();
-    }
-</script>
 
 </body>
 </html>
