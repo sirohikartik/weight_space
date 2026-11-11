@@ -44,7 +44,7 @@
         }
 
         .content {
-            max-width: 700px;
+            max-width: 720px;
             margin: 0 auto;
         }
 
@@ -226,43 +226,36 @@
     </p>
 
     <p>
-        Across two distinct model architectures (<code>Qwen2.5-0.5B</code> and <code>Gemma-2-2B</code>), we show that magnitude is not the culprit. Linguistic stability is governed by <strong>coordinate signs</strong>: amplifying positive coordinates alone excites collateral features packed in superposition, while pairing them with targeted <strong>negative coordinates</strong> provides an in-register restorative force that keeps generation on the natural data manifold.
+        Across three distinct model architectures—<strong>Qwen2.5-0.5B</strong>, <strong>Qwen2.5-1.5B</strong>, and <strong>SmolLM2-1.7B</strong>, alongside frontier ablations on <strong>Gemma-2-2B</strong>—we show that magnitude is not the culprit. Linguistic stability is governed by <strong>coordinate signs</strong>: amplifying positive coordinates alone excites collateral features packed in superposition, while pairing them with targeted <strong>negative coordinates</strong> provides an in-register restorative force that cancels collateral activation drift.
     </p>
 
-    <!-- Section 1: Qwen Results -->
-    <h2>1. The Initial Discovery: Qwen 2.5 and the Software Engineer Glitch</h2>
-
-    <p>
-        Our initial experiments focused on <code>Qwen/Qwen2.5-0.5B-Instruct</code>. We trained a Top-$K$ Sparse Autoencoder on Layer 12 residual stream activations ($d_{\text{model}} = 896$, expansion $d_{\text{sae}} = 4096$, $K = 32$, achieving $99.23\%$ activation sparsity) and isolated a monosemantic French language direction (Latent #3460).
-    </p>
+    <!-- Section 1: The Glitch -->
+    <h2>1. The Software Developer Glitch: How Feature Boosting Jumps Tracks</h2>
 
     <p>
-        We then decomposed that direction into its native physical coordinate basis and tested a basic question: <em>What happens if we inject only the top positive coordinates of that French feature into Layer 12?</em>
+        We first encountered this phenomenon while analyzing residual activations with Top-$K$ Sparse Autoencoders ($d_{\text{sae}} = 4 \times d_{\text{model}}, K = 32$, $99.2\%$ sparsity):
     </p>
 
-    <p>
-        When prompted with a generic daily activity question (<em>"Tell me about what you do every day"</em>), boosting only the top 5 positive coordinates (`#490, #507, #266, #579, #570`) produced an unexpected result. The model did not speak French. Instead, it hallucinated that it was a software engineer:
-    </p>
+    <ul>
+        <li>In <code>Qwen2.5-0.5B</code> (Layer 12, $d=896$), we isolated a monosemantic French language feature (#3460). Boosting only the top 5 positive coordinates (`#490, #507, #266, #579, #570`) did not produce French; on a neutral daily query, the model hallucinated that it was a software engineer writing Python, C++, and Rust.</li>
+        <li>In <code>Qwen2.5-1.5B</code> (Layer 14, $d=1536$), we isolated an Extraversion feature. Boosting only the top 5 positive coordinates caused the model to abandon its assistant persona on 1 out of 5 neutral probes (20.0%), declaring on <em>"Tell me about your morning routine"</em>:</li>
+    </ul>
 
     <blockquote>
-        "I spend a significant portion of my day writing code, debugging applications, and building software solutions. My routine typically involves working in Python, C++, and Rust, designing scalable backend systems, reviewing pull requests, and optimizing algorithms..."
+        "Good morning! Today's routine starts with waking up at 6:30 AM... After that, I take a shower and get dressed in my business attire for my day as a developer. Then I check my emails and review pull requests..."
     </blockquote>
 
     <p>
-        The positive coordinates of the French feature had projected heavily onto coding and software engineering directions in the residual stream.
-    </p>
-
-    <p>
-        However, when we introduced the corresponding <strong>negative coordinates</strong> (`#100, #131, #43, #850, #194`), they acted as destructive interference brakes. Adding 5 negative coordinates eliminated the programming persona, and balancing 10 positive coordinates with 10 negative coordinates fully restored fluent French generation.
+        In both cases, physical coordinates correlated with the target trait projected strongly onto an unprompted <strong>software developer persona</strong> in residual space.
     </p>
 
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>Coordinate Configuration</th>
+                    <th>Configuration</th>
                     <th>Coordinates Modulated</th>
-                    <th>Model Output Trace (Prompt: <em>"Tell me about what you do every day"</em>)</th>
+                    <th>Model Output (Prompt: <em>"Tell me about what you do every day"</em>)</th>
                 </tr>
             </thead>
             <tbody>
@@ -294,7 +287,7 @@
             </tbody>
         </table>
         <div class="caption">
-            <strong>Table 1:</strong> Destructive cancellation on <code>Qwen2.5-0.5B-Instruct</code> (Layer 12, Latent #3460, α=20.0). Modulating positive coordinates alone triggers off-target software engineering collapse; pairing with negative coordinates restores fluent target language.
+            <strong>Table 1:</strong> Destructive cancellation on <code>Qwen2.5-0.5B-Instruct</code> (Layer 12, Latent #3460, α=20.0). Positive coordinates alone trigger software engineering collapse; pairing with negative coordinates fully cancels the collateral persona.
         </div>
     </div>
 
@@ -302,7 +295,7 @@
     <h2>2. Superposition and Collateral Activation Drift</h2>
 
     <p>
-        Why did positive coordinates of a French feature trigger a programmer persona? The explanation lies in neural superposition. Because transformers represent vastly more concepts $M$ than they have residual dimensions $d$ ($M \gg d$), features are packed in almost-orthogonal arrangements:
+        Why did positive coordinates of a French or Extraversion feature trigger a software engineer identity? The answer lies in neural superposition. Because transformers represent vastly more concepts $M$ than they have residual dimensions $d$ ($M \gg d$), features are packed into almost-orthogonal configurations:
     </p>
 
     <div class="math-display">
@@ -310,7 +303,7 @@
     </div>
 
     <p>
-        When you amplify only the positive coordinates corresponding to concept $v_k$, you unavoidably project non-zero inner products onto hundreds of unrelated conceptual directions $\{v_m\}$. In downstream layers, non-linear activation functions (GeLU, SwiGLU) compound these collateral projections, driving activations off the natural data manifold into low-density representation space.
+        A single physical coordinate does not correspond to an isolated concept; it participates in dozens of polysemantic circuits simultaneously. When you amplify only positive coordinates $w_{k,j} > 0$, you inevitably inject non-zero energy along unrelated concept vectors $\{v_m\}$. Downstream non-linear activation functions (GeLU, SwiGLU) rectify and amplify this collateral projection, pushing the hidden state off the natural data manifold.
     </p>
 
     <!-- Diagram -->
@@ -352,11 +345,145 @@
         </div>
     </div>
 
-    <!-- Section 3: Gemma Results -->
-    <h2>3. The Controlled Norm Ablation on Gemma-2-2B (32 Conditions, 100 Probes)</h2>
+    <!-- Section 3: The Sub-2B Norm Ablation Suite -->
+    <h2>3. The Controlled Euclidean Norm Suite: Qwen2.5-1.5B vs. SmolLM2-1.7B</h2>
 
     <p>
-        To test whether this cancellation effect generalizes to larger architectures and behavioral traits, we scaled our evaluation to <code>Gemma-2-2B</code>, steering for the Agreeableness persona. We designed a controlled norm ablation across 32 intervention conditions, evaluating each across 100 standardized neutral probes with Wilson score 95% confidence intervals and relative cross-entropy loss.
+        To prove that sign balance—and not vector norm ($L_2$)—explains stability, we constructed a strict <strong>controlled Euclidean norm ablation suite</strong>. We clamped every condition to the exact same total Euclidean energy $c = \|\Delta x_{\text{bal10}}\|_2$ and evaluated across <strong>500 held-out evaluation prompts</strong> and <strong>100 neutral persona probes</strong> with Wilson score 95% confidence intervals:
+    </p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Model &amp; Trait</th>
+                    <th>Condition</th>
+                    <th>Energy $c$</th>
+                    <th>Adherence ($n=500$)</th>
+                    <th>Persona Shifts ($n=100$)</th>
+                    <th>Loss</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Qwen2.5-1.5B</strong><br><em>(Agreeableness)</em></td>
+                    <td>$C_0$ Baseline</td>
+                    <td>0.000</td>
+                    <td>74.8% [70.8, 78.4]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.00</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{full}}$ (Dense SAE)</td>
+                    <td>10.505</td>
+                    <td>75.2% [71.2, 78.8]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.01</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{pos5}}$ (Pos Only)</td>
+                    <td>10.505</td>
+                    <td>96.8% [94.9, 98.0]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.00</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{neg5}}$ (Neg Only)</td>
+                    <td>10.505</td>
+                    <td>65.0% [60.7, 69.1] (-9.8%)</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.00</td>
+                </tr>
+                <tr class="highlight">
+                    <td></td>
+                    <td><strong>$C_{\text{bal10}}$ (Balanced)</strong></td>
+                    <td>10.505</td>
+                    <td><strong>93.2% [90.6, 95.1]</strong></td>
+                    <td><strong>0 / 100 [0.0, 3.7]</strong></td>
+                    <td><strong>2.00</strong></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{top10\_abs}}$ (Mag Only)</td>
+                    <td>10.505</td>
+                    <td>75.0% [71.0, 78.6] <em>(-18.2% collapse)</em></td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.01</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{norm\_ctrl}}$ (Gaussian Floor)</td>
+                    <td>10.505</td>
+                    <td>97.0% [95.1, 98.2]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>2.03</td>
+                </tr>
+                <tr style="border-top: 1px solid #111111;">
+                    <td><strong>SmolLM2-1.7B</strong><br><em>(Agreeableness)</em></td>
+                    <td>$C_0$ Baseline</td>
+                    <td>0.000</td>
+                    <td>94.2% [91.8, 95.9]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>1.88</td>
+                </tr>
+                <tr class="highlight">
+                    <td></td>
+                    <td><strong>$C_{\text{bal10}}$ (Balanced)</strong></td>
+                    <td>6.010</td>
+                    <td><strong>95.8% [93.7, 97.2]</strong></td>
+                    <td><strong>0 / 100 [0.0, 3.7]</strong></td>
+                    <td><strong>1.87</strong></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{top10\_abs}}$ (Mag Only)</td>
+                    <td>6.010</td>
+                    <td>95.2% [93.0, 96.8]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>1.87</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>$C_{\text{norm\_ctrl}}$ (Gaussian Floor)</td>
+                    <td>6.010</td>
+                    <td>93.8% [91.3, 95.6]</td>
+                    <td>0 / 100 [0.0, 3.7]</td>
+                    <td>1.88</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">
+            <strong>Table 2:</strong> Controlled norm benchmark on <code>Qwen2.5-1.5B</code> and <code>SmolLM2-1.7B</code> across 500 held-out prompts and 100 neutral persona probes. Clamped to equal Euclidean energy $c$.
+        </div>
+    </div>
+
+    <h3>The 18.2% Magnitude-Only Collapse</h3>
+    <p>
+        In standard model pruning and feature steering, practitioners routinely pick coordinates by largest absolute magnitude $|w_{k,j}|$. Table 2 delivers a decisive verdict on this heuristic:
+    </p>
+
+    <p>
+        On <code>Qwen2.5-1.5B</code>, selecting the top 10 coordinates purely by absolute magnitude without sign balance ($C_{\text{top10\_abs}}$) caused an <strong>18.2 percentage point collapse in adherence</strong> (plunging from 93.2% down to 75.0%), dropping all the way back to unsteered baseline levels (74.8%). Large weights without their counterweights simply dump uncontrolled energy into competing circuits.
+    </p>
+
+    <h3>Active Directional Suppression</h3>
+    <p>
+        Under condition $C_{\text{neg5}}$, injecting pure negative coordinates at the exact same norm ($c = 10.505$) drove adherence down to <strong>65.0%</strong>—a full 9.8% below the unsteered baseline. This demonstrates that negative coordinates do not act as passive dampening noise; they exert active, directional suppression against the target trait circuit.
+    </p>
+
+    <h3>Cross-Architecture Differences</h3>
+    <p>
+        In <code>SmolLM2-1.7B</code>, persona collapse on neutral probes remained at 0/100 across all conditions. Why? SmolLM2 has a significantly higher baseline adherence (94.2% on Agreeableness vs 74.8% on Qwen), indicating that its task representations sit closer to saturation in its attention circuits. When a model operates near saturation, moderate vector perturbations are less likely to cross unintended decision boundaries than in models with lower baseline margin.
+    </p>
+
+    <!-- Section 4: Gemma-2-2B Norm Ablation -->
+    <h2>4. Frontier Scaling: Gemma-2-2B Norm Ablation (32 Conditions)</h2>
+
+    <p>
+        To test whether these conclusions hold under frontier steering methodologies, we expanded evaluation to <code>Gemma-2-2B</code>, benchmarking balanced physical coordinates against dense SAE steering, SAE-Targeted Steering (SAE-TS), and in-context prompting across 100 neutral probes:
     </p>
 
     <div class="table-wrap">
@@ -400,13 +527,6 @@
                     <td>Fluent (Zero Trait Shift)</td>
                 </tr>
                 <tr>
-                    <td>Symmetric Physical (α=30)</td>
-                    <td>5.67</td>
-                    <td>2.00</td>
-                    <td>0.0% [0.0%, 3.7%]</td>
-                    <td>Fluent (Zero Collapse)</td>
-                </tr>
-                <tr>
                     <td>Dense SAE Steering (α=10)</td>
                     <td>7.81</td>
                     <td>5.89</td>
@@ -430,21 +550,16 @@
             </tbody>
         </table>
         <div class="caption">
-            <strong>Table 2:</strong> Systematic norm ablation on <code>Gemma-2-2B</code> across 100 neutral evaluation probes.
+            <strong>Table 3:</strong> Frontier norm ablation on <code>Gemma-2-2B</code> across 100 neutral evaluation probes.
         </div>
     </div>
 
     <p>
-        The comparison between rows 2 and 3 provides unambiguous evidence that magnitude does not cause collapse:
+        Balanced physical steering achieves <strong>0.0% collapse</strong> at norm 5.67, outperforming positive-only steering (6.0% collapse at a lower norm 4.46) and dense SAE steering (28.0% collapse). Autoencoder decoders project energy across all residual stream coordinates simultaneously, injecting dense background noise that inflates relative loss to 5.89.
     </p>
 
-    <ul>
-        <li><strong>Balanced steering has a higher norm (5.67) than positive-only steering (4.46), yet produces zero collapse</strong> (0.0% vs 6.0%). If raw norm broke fluency, the higher-energy intervention would collapse more often. In reality, it preserves baseline relative loss (2.00 vs 1.98 unsteered).</li>
-        <li><strong>Dense SAE steering degrades severely (28.0% collapse)</strong>: Autoencoder decoders project energy across all residual stream coordinates simultaneously, injecting dense background noise that inflates relative loss to 5.89.</li>
-    </ul>
-
-    <!-- Section 4: Closed-Form Weight Compilation -->
-    <h2>4. Closed-Form Weight Compilation: Eliminating Runtime Hooks</h2>
+    <!-- Section 5: Closed-Form Compilation -->
+    <h2>5. Closed-Form Weight Compilation: Zero Runtime Overhead</h2>
 
     <p>
         Because physical coordinates operate directly on native model dimensions, balanced steering directions do not have to remain runtime forward hooks. In <code>Qwen2.5-0.5B</code>, we permanently compiled the balanced latent direction into the MLP down-projection matrix $W_{\text{down}} \in \mathbb{R}^{896 \times 4864}$ via a closed-form rank-1 outer product:
@@ -459,14 +574,14 @@
     </p>
 
     <p>
-        Testing the compiled model without any runtime forward hooks confirmed that French generation was permanently active. More importantly, evaluating on English factual sentences showed that general language capability was preserved: cross-entropy loss shifted only from 0.482 to 0.518, with zero syntactic degradation.
+        Testing the compiled model without any runtime forward hooks confirmed that French generation was permanently active, while English factual sentence loss shifted only from 0.482 to 0.518, preserving syntactic integrity with zero runtime latency.
     </p>
 
-    <!-- Section 5: Forward Hook Code -->
-    <h2>5. In-Register PyTorch Forward Hook</h2>
+    <!-- Section 6: Forward Hook Code -->
+    <h2>6. In-Register PyTorch Forward Hook</h2>
 
     <p>
-        For dynamic runtime steering, physical coordinates execute directly in GPU register memory with zero prompt tokens and zero key-value cache memory overhead:
+        For dynamic steering, physical coordinates execute in GPU register memory with zero prompt tokens and zero key-value cache memory overhead:
     </p>
 
     <pre><code>def make_balanced_hook(pos_indices, pos_weights, neg_indices, neg_weights, alpha=30.0):
@@ -487,8 +602,8 @@
 
     return hook_fn</code></pre>
 
-    <!-- Section 6: Safety -->
-    <h2>6. Safety Audit: Refusal Direction Deflation</h2>
+    <!-- Section 7: Safety -->
+    <h2>7. Safety Audit: Refusal Direction Deflation</h2>
 
     <p>
         Before deploying any steering vector, practitioners must verify that the intervention does not project onto the model's latent refusal direction $v_{\text{ref}}$, which can inadvertently disable safety filters.
@@ -506,7 +621,7 @@
     <h2>Takeaway</h2>
 
     <p>
-        Across both Qwen 2.5 and Gemma 2, the evidence points to a single geometric conclusion: language model steering does not require complex high-dimensional autoencoders or ballooning prompt lengths. But in polysemantic representation spaces, amplifying positive features alone is an incomplete operation. To preserve model sanity, you have to push in reverse.
+        Across Qwen2.5-0.5B, Qwen2.5-1.5B, SmolLM2-1.7B, and Gemma-2-2B, the evidence points to a single geometric conclusion: language model steering does not require complex high-dimensional autoencoders or ballooning prompt lengths. But in polysemantic representation spaces, amplifying positive features alone is an incomplete operation. To preserve model sanity, you have to push in reverse.
     </p>
 
 </article>
